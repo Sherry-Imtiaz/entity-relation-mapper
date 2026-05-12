@@ -1,0 +1,580 @@
+PROJECT CONTEXT FOR CHATGPT — ENTITY RELATION MAPPER
+
+Project Name:
+Entity Relation Mapper
+
+Organisation / User:
+IDT Solutions Pty Ltd
+
+Current Working Version:
+v2.1.2 Patch — Graphviz Escape Sequence Fix
+
+Current Version Name:
+Graphviz Escape Sequence Fix
+
+Current Project Status:
+The project has been modularised from a single-file Streamlit prototype into a structured multi-file Python/Streamlit application. The current project compiles successfully after the v2.1.2 patch. The latest patch fixed a Graphviz DOT export warning caused by the invalid Python escape sequence "\l", replacing it with the correct escaped "\\l" sequence.
+
+The current app is a Streamlit-based tool used to import database table/column metadata, define named relationship contexts, create and manage database relationships, visualise ERDs, and export ChatGPT-friendly database context for SQL/query generation.
+
+IMPORTANT WORKFLOW RULES:
+All future software update discussions should be labelled as either:
+
+Plan - [message]
+Build - [message]
+
+For any build:
+1. First summarise the plan.
+2. Ask or wait for confirmation if the user has not already said Build.
+3. After every build, assign a version number.
+4. Provide a changelog.
+5. Maintain changelog entries in code where applicable.
+
+CURRENT VERSION:
+APP_VERSION = "v2.1.2"
+APP_VERSION_NAME = "Graphviz Escape Sequence Fix"
+
+CURRENT MAJOR STATE:
+The app is now modular and should not be treated as a single-file application anymore.
+
+Current folder structure:
+
+erd_mapper_v2_1_0/
+├── app.py
+├── config.py
+├── models.py
+├── state_manager.py
+├── importers.py
+├── validation.py
+├── inference.py
+├── exports.py
+├── visualisation.py
+├── ui_shared.py
+├── ui_contexts.py
+├── ui_tables.py
+├── ui_relationships.py
+├── ui_inference.py
+├── ui_erd.py
+├── ui_export.py
+├── requirements.txt
+├── README.md
+├── CHANGELOG.md
+├── VERSION.md
+├── .gitignore
+├── sample_data/
+│   ├── simple_schema_template.csv
+│   └── relationship_context_example.md
+└── scripts/
+    ├── run_app.bat
+    ├── run_app.ps1
+    └── compile_check.py
+
+CURRENT DEPENDENCIES:
+streamlit
+pandas
+sqlalchemy
+pyodbc
+openpyxl
+streamlit-flow-component
+
+RUN COMMAND:
+streamlit run app.py
+
+VALIDATION COMMAND:
+python scripts/compile_check.py
+
+WINDOWS QUICK RUN:
+scripts\run_app.bat
+
+POWERSHELL QUICK RUN:
+.\scripts\run_app.ps1
+
+CURRENT CORE FUNCTIONALITY:
+1. Import schema metadata from CSV or Excel.
+2. Optional SQLAlchemy database introspection support.
+3. View tables and columns.
+4. Create named relationship contexts.
+5. Assign tables to named relationship contexts.
+6. Create manual relationships.
+7. Create conditional relationships inside the main Relationships workflow.
+8. Infer likely relationships within active context.
+9. Validate relationships.
+10. Detect broken relationships.
+11. View relationship quality dashboard.
+12. View ERD using Streamlit Flow.
+13. Use Graphviz fallback.
+14. Export Mermaid text.
+15. Export ChatGPT-friendly Markdown.
+16. Export JSON.
+17. Save/load local app state.
+18. Maintain in-code changelog history.
+
+CURRENT DESIGN MODEL:
+The system uses named relationship contexts. Relationships are not treated as one global database-wide map by default. A relationship context represents a specific business or technical relationship area.
+
+Examples:
+- Property Ownership Relations
+- Customer Relations
+- Payment Relations
+- Animal Registration Relations
+- Regulatory Application Relations
+- Module Relations
+
+Each relationship context can store:
+- Name
+- Context type
+- Purpose
+- Business context
+- Included tables
+- Primary join path
+- Conditional logic notes
+- Query guidance
+- Comments
+- Owner/reviewer
+- Status
+- Created/updated timestamps
+
+RELATIONSHIP MODEL:
+Relationships are stored in a shared relationship registry and can be scoped to a context using context_id.
+
+Relationship fields include:
+- id
+- context_id
+- source_schema
+- source_table
+- source_column
+- target_schema
+- target_table
+- target_column
+- relationship_type
+- cardinality
+- join_type
+- confidence
+- condition_sql
+- extra_join_sql
+- description
+- active
+
+Supported relationship types:
+- manual
+- conditional
+- inferred
+- imported
+- explicit_fk
+
+Conditional relationships are NOT managed in a separate tab anymore.
+They are created and edited as normal relationships with optional condition_sql.
+
+Example:
+source: PropertyWise.Associations_Role_Based.Item_Id
+target: PropertyWise.Properties.Property_Id
+condition_sql: src.Item_Type = 3
+relationship_type: conditional
+
+IMPORTANT CURRENT UI DECISION:
+The separate Conditional Links tab was removed in v1.1.5.
+Conditional links are now part of the main Relationships tab.
+
+CURRENT ERD DECISION:
+Mermaid visual rendering was attempted and reverted due to rendering/deprecation/syntax issues.
+Mermaid is currently text/export only.
+Graphviz exists as fallback.
+The primary ERD visualisation is Streamlit Flow.
+
+CURRENT ERD VISUALISATION:
+The ERD View uses streamlit-flow-component to show table-style ERD nodes.
+
+Current table-style ERD node layout:
+Table_Name
+schema · Rows: count
+
+| Type | Column |
+|---|---|
+| PK | Primary_Id |
+| KEY | Other_Id |
+|     | Normal_Column |
+| …   | X more columns |
+
+Field markers:
+PK = Primary key field
+KEY = ID/key-like field
+blank = normal field
+… = hidden remaining columns
+
+Key-like fields are detected using names ending in:
+_Id
+ID
+_Key
+Key
+_Code
+Code
+_Number
+Number
+_No
+No
+
+ERD View supports:
+- Whole database scope
+- Active relationship context scope
+- Dragging table nodes
+- Pan/zoom
+- Minimap
+- Existing relationships as edges
+- Conditional relationships shown as animated/labelled edges where supported
+
+CURRENT MODULE BREAKDOWN:
+
+app.py:
+Main Streamlit entry point. Should remain lightweight. It sets up the page, loads state, displays high-level app header/sidebar, creates tabs, and delegates each tab to UI modules.
+
+config.py:
+Stores:
+- STATE_FILE
+- APP_VERSION
+- APP_VERSION_NAME
+- APP_CHANGELOG
+
+models.py:
+Stores dataclass models:
+- ColumnInfo
+- TableInfo
+- Relationship
+- RelationshipContext
+- ErdState
+
+state_manager.py:
+Stores:
+- default_state()
+- serialize_state()
+- deserialize_state()
+- save_state()
+- load_state()
+- merge_tables_keep_metadata()
+
+importers.py:
+Stores import logic:
+- HEADER_ALIASES
+- clean_header()
+- canonical_header()
+- normalize_dataframe_headers()
+- value_is_blank()
+- safe_str()
+- parse_bool()
+- parse_int()
+- parse_float()
+- split_table_identifier()
+- get_row_value()
+- build_tables_from_column_rows()
+- build_tables_from_table_rows()
+- build_relationships_from_rows()
+- read_uploaded_tabular_file()
+- find_sheet()
+- import_schema_file()
+- create_import_template_excel()
+- create_simple_csv_template()
+
+validation.py:
+Stores relationship and import validation:
+- VALID_RELATIONSHIP_TYPES
+- VALID_JOIN_TYPES
+- VALID_CARDINALITIES
+- context_display_name()
+- get_context_table_set()
+- get_context_tables()
+- get_relationships_for_context()
+- validate_relationships()
+- relationship_quality_summary()
+- validate_import_preview()
+
+inference.py:
+Stores relationship inference:
+- clean_name()
+- singularize()
+- likely_id_columns()
+- score_relationship()
+- infer_relationships()
+
+exports.py:
+Stores export logic:
+- build_context_scoped_state()
+- table_to_export_dict()
+- relationship_to_export_dict()
+- export_json()
+- export_markdown()
+- export_mermaid()
+- export_dot()
+- export_markdown_with_context()
+- export_json_with_context()
+
+NOTE:
+v2.1.2 fixed export_dot() in exports.py so Graphviz line breaks use "\\l" instead of "\l".
+
+visualisation.py:
+Stores Streamlit Flow ERD helpers:
+- is_key_like_column()
+- split_visual_columns_for_table()
+- build_table_node_content()
+- get_visual_columns_for_table()
+- build_streamlit_flow_state_for_context()
+- build_streamlit_flow_state_from_erd_state()
+
+ui_shared.py:
+Stores shared Streamlit UI helper functions:
+- table_key()
+- make_context_id()
+- unique_context_id()
+- rel_id()
+- split_full_table()
+- relationships_df()
+- get_table_columns()
+- get_schema_options()
+- filter_table_options()
+- render_table_filter_controls()
+- get_active_context()
+- relationship_context_warning()
+
+ui_contexts.py:
+Renders Relationship Contexts tab.
+Handles:
+- create relationship context
+- edit context details
+- assign tables
+- remove tables
+- delete context
+- set active context
+
+ui_tables.py:
+Renders Tables tab.
+Handles:
+- table viewer
+- column viewer
+- edit module/purpose/notes/comments
+
+ui_relationships.py:
+Renders Relationships tab.
+Handles:
+- relationship registry
+- relationship dashboard
+- validation details
+- create standard relationship
+- create conditional relationship
+- edit/delete relationship
+
+ui_inference.py:
+Renders Infer Links tab.
+Handles:
+- run inference inside active context
+- review suggested links
+- accept inferred relationships
+
+ui_erd.py:
+Renders ERD View tab.
+Handles:
+- whole database/active context scope
+- Streamlit Flow ERD visualisation
+- Graphviz fallback
+- Mermaid text/export
+
+ui_export.py:
+Renders Export for ChatGPT tab.
+Handles:
+- whole database export
+- active context export
+- Markdown export
+- JSON export
+- Mermaid export
+- validation warnings
+- preview output
+
+VERSION HISTORY SUMMARY:
+
+v1.0.0 — Baseline ERD Mapper
+- Initial Streamlit single-file app.
+- CSV/Excel schema import.
+- Table/column viewer.
+- Manual relationships.
+- Inferred relationships.
+- Conditional relationships.
+- ERD view.
+- Markdown/JSON/Mermaid exports.
+- Local JSON state management.
+
+v1.1.0 Phase 1 — Named Relationship Context Foundation
+- Added app version display.
+- Added RelationshipContext model.
+- Added relationship_contexts and active_context_id to state.
+- Added Relationship Contexts tab.
+- Added searchable/schema-filtered table assignment.
+
+v1.1.0 Phase 2 — Context-Scoped Relationships and ERD
+- Scoped manual/inferred/conditional relationships to active context.
+- Added relationship registry context display.
+- Added ERD scope option.
+- Added code-based changelog.
+
+v1.1.0 Phase 3 — Context Export, Validation, and Relationship Quality
+- Context-scoped Markdown/JSON/Mermaid exports.
+- Relationship validation.
+- Broken relationship detection.
+- Relationship quality dashboard.
+- Import preview/validation foundation.
+- Conditional relationship editing.
+
+v1.1.1 Patch — Phase 3 Syntax Fix
+- Fixed return statement/syntax issue in helper section.
+
+v1.1.2 Patch — Streamlit and UTC Deprecation Fixes
+- Replaced use_container_width with width.
+- Replaced datetime.utcnow() with datetime.now(UTC).
+
+v1.1.3 Patch — Export Helper String Literal Fix
+- Fixed unterminated string literal from broken newline join.
+
+v1.1.4 Patch — Changelog String Escape Fix
+- Fixed invalid quoted changelog strings.
+
+v1.1.5 Patch — Unified Relationship Management
+- Moved conditional relationship creation into Relationships tab.
+- Removed separate Conditional Links tab.
+
+v2.0.0 Phase 1 — React Flow Visual Relationship Editor attempt
+- Tried visual relationship editor inside Relationships tab.
+- Later changed direction.
+
+v2.0.3 Patch — Streamlit Flow ERD View
+- Removed visual relationship creation.
+- Moved Streamlit Flow visualisation to ERD View.
+
+v2.0.4 Patch — Streamlit Flow ERD Visual Styling
+- Improved ERD node styling.
+
+v2.0.5 Patch — Table-Style ERD Components
+- Table-style ERD nodes.
+- PK/KEY/normal field markers.
+
+v2.1.0 Phase 1 — Core Structure Extraction
+- Extracted config.py.
+- Extracted models.py.
+- Extracted state_manager.py.
+- Added requirements.txt.
+- Started modular structure.
+
+v2.1.0 Phase 2 — Logic Module Extraction
+- Extracted importers.py.
+- Extracted validation.py.
+- Extracted inference.py.
+- Extracted exports.py.
+- Extracted visualisation.py.
+
+v2.1.0 Phase 3 — UI Tab Extraction
+- Extracted ui_contexts.py.
+- Extracted ui_tables.py.
+- Extracted ui_relationships.py.
+- Extracted ui_inference.py.
+- Extracted ui_erd.py.
+- Extracted ui_export.py.
+- Added ui_shared.py.
+
+v2.1.0 Phase 4 — Stabilisation, Cleanup, and Packaging
+- Added README.md.
+- Added CHANGELOG.md.
+- Added VERSION.md.
+- Added .gitignore.
+- Added sample_data.
+- Added scripts/run_app.bat.
+- Added scripts/run_app.ps1.
+- Added scripts/compile_check.py.
+
+v2.1.1 Patch — Phase 4 Config Newline Fix
+- Fixed config.py literal "\n" issue in APP_CHANGELOG.
+
+v2.1.2 Patch — Graphviz Escape Sequence Fix
+- Fixed invalid Python escape warning in exports.py.
+- Replaced "\l" with "\\l" in Graphviz DOT label generation.
+
+CURRENT KNOWN GOOD STATUS:
+- Compile check passes.
+- app.py compiles.
+- config.py compiles.
+- models.py compiles.
+- state_manager.py compiles.
+- importers.py compiles.
+- validation.py compiles.
+- inference.py compiles.
+- exports.py compiles after v2.1.2.
+- visualisation.py compiles.
+- all ui_*.py files compile.
+
+CURRENT LOCAL STATE:
+App working state is stored in:
+erd_mapper_state.json
+
+This file is ignored by .gitignore.
+
+ROLLBACK NOTES:
+Pre-modularisation rollback checkpoint:
+v2.0.5 Patch — Table-Style ERD Components Patch
+
+Phase backups created during extraction:
+- app_pre_v2_1_0_phase2_backup.py
+- app_pre_v2_1_0_phase3_backup.py
+- app_pre_v2_1_0_phase4_backup.py
+
+FUTURE DEVELOPMENT GUIDANCE:
+When modifying this app, do not put all code back into app.py.
+Respect the modular structure.
+
+Examples:
+- New import logic → importers.py
+- New validation → validation.py
+- New inference scoring → inference.py
+- New export format → exports.py
+- New ERD visualisation behaviour → visualisation.py
+- Changes to Relationship Contexts tab → ui_contexts.py
+- Changes to Tables tab → ui_tables.py
+- Changes to Relationships tab → ui_relationships.py
+- Changes to Inference tab → ui_inference.py
+- Changes to ERD tab → ui_erd.py
+- Changes to Export tab → ui_export.py
+- Shared UI helper → ui_shared.py
+- Version/changelog → config.py
+- Data model changes → models.py
+- State migration/save/load → state_manager.py
+
+IMPORTANT DEVELOPMENT PREFERENCE:
+Before making code changes:
+1. Summarise the change as “Plan - ...”
+2. Wait for or receive “Build”
+3. Apply patch/build
+4. Assign version number
+5. Update changelog
+6. Provide clear changelog summary
+
+RECOMMENDED NEXT VERSION OPTIONS:
+v2.1.3 Patch:
+Small bug fixes only.
+
+v2.2.0:
+Feature improvements, such as:
+- Better ERD layout controls
+- Save ERD node positions
+- Context duplicate/copy feature
+- Relationship bulk edit
+- Better import confirmation workflow
+- Export warnings embedded directly into Markdown
+- UI polish
+
+v3.0.0:
+True custom React relationship editor with field-level drag/drop relationship creation.
+
+IMPORTANT LESSONS FROM PREVIOUS WORK:
+- Avoid Mermaid rendered HTML in Streamlit for now.
+- Mermaid should remain text/export only unless a stable renderer is chosen.
+- Graphviz should remain fallback/export, not primary interactive visualisation.
+- Streamlit Flow is the current preferred ERD visualisation.
+- Avoid automated global replacements that touch changelog strings.
+- Avoid literal "\n" insertion into Python code.
+- Use chr(10).join(...) or "\\n".join(...) carefully when generating code patches.
+- Always run compile_check.py after patches.
+
+END OF PROJECT CONTEXT

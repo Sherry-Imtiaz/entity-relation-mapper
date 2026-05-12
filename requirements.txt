@@ -1,0 +1,6 @@
+streamlit
+pandas
+sqlalchemy
+pyodbc
+openpyxl
+streamlit-flow-component

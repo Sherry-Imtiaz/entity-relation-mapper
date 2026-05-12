@@ -1,0 +1,9 @@
+schema_name,table_name,column_name,data_type,nullable,is_primary_key,ordinal_position,row_count,module,purpose,notes,comment
+PropertyWise,Properties,Property_Id,int,no,yes,1,10000,Property,Property master table,Main property table,Primary property identifier
+PropertyWise,Properties,Assessment_No,varchar(50),yes,no,2,10000,Property,Property master table,Main property table,Assessment number
+PropertyWise,Associations_Role_Based,Role_Based_Association_Id,int,no,yes,1,50000,Property,Role based associations,Links items to associates,Primary association identifier
+PropertyWise,Associations_Role_Based,Item_Id,int,no,no,2,50000,Property,Role based associations,Links items to associates,Linked module item identifier
+PropertyWise,Associations_Role_Based,Item_Type,int,no,no,3,50000,Property,Role based associations,Links items to associates,Discriminator for module type
+PropertyWise,Associations_Role_Based,Associate_Id,int,no,no,4,50000,Property,Role based associations,Links items to associates,Linked associate identifier
+PropertyWise,Associates,Associate_Id,int,no,yes,1,20000,Customer,Associate master,Main associate/customer party table,Primary associate identifier
+PropertyWise,Associates,Name_Full_Name_Forward,varchar(255),yes,no,2,20000,Customer,Associate master,Main associate/customer party table,Display name
