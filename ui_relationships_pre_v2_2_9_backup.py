@@ -132,6 +132,15 @@ def _log_info(module: str, action: str, message: str, details=None) -> None:
         pass
 
 
+def _log_error(module: str, action: str, message: str, details=None) -> None:
+    try:
+        from logger import log_error
+
+        log_error(module, action, message, details or "")
+    except Exception:
+        pass
+
+
 def apply_pending_relationship_suggestions() -> None:
     pending_map = {
         "pending_manual_picklist_cardinality": "manual_picklist_cardinality",
@@ -165,7 +174,23 @@ def render_relationship_field_guide() -> None:
         )
 
 
-def render_relationship_suggestion_panel(suggestion: dict) -> None:
+def render_relationship_suggestion_panel(
+    state: ErdState,
+    source_full: str,
+    source_col: str,
+    target_full: str,
+    target_col: str,
+    relationship_mode: str,
+) -> None:
+    suggestion = suggest_relationship_options(
+        state,
+        source_full,
+        source_col,
+        target_full,
+        target_col,
+        relationship_mode,
+    )
+
     st.markdown("#### Suggested relationship options")
 
     if suggestion.get("warning"):
@@ -179,10 +204,28 @@ def render_relationship_suggestion_panel(suggestion: dict) -> None:
     with st.expander("Why these options are suggested", expanded=False):
         st.write(suggestion["reason"])
 
+    if st.button(
+        "Apply suggested options",
+        key="manual_picklist_apply_suggestion",
+        help="Apply the suggested cardinality, join type, and confidence to the relationship form.",
+    ):
+        st.session_state["pending_manual_picklist_cardinality"] = suggestion["cardinality"]
+        st.session_state["pending_manual_picklist_join_type"] = suggestion["join_type"]
+        st.session_state["pending_manual_picklist_confidence"] = float(suggestion["confidence"])
 
-def _apply_auto_suggestion_to_session(suggestion: dict) -> None:
-    st.session_state["manual_picklist_join_type"] = suggestion["join_type"]
-    st.session_state["manual_picklist_confidence"] = float(suggestion["confidence"])
+        _log_info(
+            "Relationships",
+            "suggestion_applied",
+            "Relationship suggestion applied",
+            {
+                "source": f"{source_full}.{source_col}",
+                "target": f"{target_full}.{target_col}",
+                "suggestion": suggestion,
+            },
+        )
+
+        st.success("Suggested options applied.")
+        st.rerun()
 
 
 def render_context_manual_relationship_picklist_form(state: ErdState) -> None:
@@ -296,47 +339,23 @@ def render_context_manual_relationship_picklist_form(state: ErdState) -> None:
         st.warning("The selected tables must have columns before a relationship can be created.")
         return
 
-    option_col1, option_col2 = st.columns(2)
+    options_col1, options_col2, options_col3 = st.columns(3)
 
-    with option_col1:
+    with options_col1:
         relationship_mode = st.selectbox(
             "Relationship mode",
             ["Standard relationship", "Conditional relationship"],
             key="manual_picklist_relationship_mode",
             help="Use Standard for direct joins. Use Conditional when an extra rule is required, such as src.Item_Type = 3.",
         )
-
-    with option_col2:
+    with options_col2:
         cardinality = st.selectbox(
             "Cardinality",
             ["many-to-one", "one-to-many", "one-to-one", "many-to-many"],
             key="manual_picklist_cardinality",
-            help="Changing this field updates the suggested join/confidence. If auto-apply is enabled, those controls are updated automatically.",
+            help="Describes how records relate between source and target tables. Many-to-one is common for detail-to-master joins.",
         )
-
-    suggestion = suggest_relationship_options(
-        state,
-        source_full,
-        source_col,
-        target_full,
-        target_col,
-        relationship_mode,
-        selected_cardinality=cardinality,
-    )
-
-    auto_apply = st.checkbox(
-        "Auto-apply suggested join and confidence",
-        value=True,
-        key="manual_picklist_auto_apply_suggestions",
-        help="When enabled, the Join type and Confidence controls update from the selected cardinality and selected fields.",
-    )
-
-    if auto_apply:
-        _apply_auto_suggestion_to_session(suggestion)
-
-    join_col, confidence_col = st.columns(2)
-
-    with join_col:
+    with options_col3:
         join_type = st.selectbox(
             "Join type",
             ["LEFT JOIN", "INNER JOIN", "RIGHT JOIN", "FULL OUTER JOIN"],
@@ -344,41 +363,24 @@ def render_context_manual_relationship_picklist_form(state: ErdState) -> None:
             help="LEFT JOIN keeps all source records. INNER JOIN only returns matching records.",
         )
 
-    with confidence_col:
-        if "manual_picklist_confidence" not in st.session_state:
-            st.session_state["manual_picklist_confidence"] = float(suggestion["confidence"])
+    confidence = st.slider(
+        "Confidence",
+        min_value=0.0,
+        max_value=1.0,
+        value=float(st.session_state.get("manual_picklist_confidence", 1.0)),
+        step=0.05,
+        key="manual_picklist_confidence",
+        help="Your confidence that this relationship is correct.",
+    )
 
-        confidence = st.slider(
-            "Confidence",
-            min_value=0.0,
-            max_value=1.0,
-            step=0.05,
-            key="manual_picklist_confidence",
-            help="Your confidence that this relationship is correct.",
-        )
-
-    render_relationship_suggestion_panel(suggestion)
-
-    if not auto_apply:
-        if st.button(
-            "Apply suggested options",
-            key="manual_picklist_apply_suggestion",
-            help="Apply the suggested join type and confidence to the relationship form.",
-        ):
-            st.session_state["pending_manual_picklist_join_type"] = suggestion["join_type"]
-            st.session_state["pending_manual_picklist_confidence"] = float(suggestion["confidence"])
-            _log_info(
-                "Relationships",
-                "suggestion_applied",
-                "Relationship suggestion applied",
-                {
-                    "source": f"{source_full}.{source_col}",
-                    "target": f"{target_full}.{target_col}",
-                    "suggestion": suggestion,
-                },
-            )
-            st.success("Suggested options applied.")
-            st.rerun()
+    render_relationship_suggestion_panel(
+        state,
+        source_full,
+        source_col,
+        target_full,
+        target_col,
+        relationship_mode,
+    )
 
     condition_sql = ""
     if relationship_mode == "Conditional relationship":
@@ -405,12 +407,10 @@ def render_context_manual_relationship_picklist_form(state: ErdState) -> None:
 
     with st.expander("Relationship preview", expanded=False):
         preview = f"{source_full}.{source_col} -> {target_full}.{target_col}"
-        preview += f"\nCardinality: {cardinality}"
-        preview += f"\nJoin type: {join_type}"
         if condition_sql.strip():
-            preview += f"\nCondition: {condition_sql}"
+            preview += f"\\nCondition: {condition_sql}"
         if extra_join_sql.strip():
-            preview += f"\nExtra join: {extra_join_sql}"
+            preview += f"\\nExtra join: {extra_join_sql}"
         st.code(preview, language="text")
 
     if st.button("Add relationship from picklists", type="primary", key="manual_picklist_add_relationship"):
@@ -462,8 +462,6 @@ def render_context_manual_relationship_picklist_form(state: ErdState) -> None:
                 "source": f"{source_full}.{source_col}",
                 "target": f"{target_full}.{target_col}",
                 "relationship_type": relationship_type,
-                "cardinality": cardinality,
-                "join_type": join_type,
             },
         )
 
@@ -536,13 +534,10 @@ def render_relationship_registry(state: ErdState) -> None:
             key=f"relationship_confidence_{selected_id}",
         )
     with edit_col3:
-        join_options = ["LEFT JOIN", "INNER JOIN", "RIGHT JOIN", "FULL OUTER JOIN"]
-        current_join = getattr(rel, "join_type", "LEFT JOIN")
-        join_index = join_options.index(current_join) if current_join in join_options else 0
         new_join_type = st.selectbox(
             "Join type",
-            join_options,
-            index=join_index,
+            ["LEFT JOIN", "INNER JOIN", "RIGHT JOIN", "FULL OUTER JOIN"],
+            index=max(0, ["LEFT JOIN", "INNER JOIN", "RIGHT JOIN", "FULL OUTER JOIN"].index(getattr(rel, "join_type", "LEFT JOIN")) if getattr(rel, "join_type", "LEFT JOIN") in ["LEFT JOIN", "INNER JOIN", "RIGHT JOIN", "FULL OUTER JOIN"] else 0),
             key=f"relationship_join_type_{selected_id}",
         )
 

@@ -1,5 +1,75 @@
 # Entity Relation Mapper — Changelog
 
+## v2.2.12 Patch — Context-Based ERD and Export Selection
+
+### Changed
+- Replaced relationship multiselect controls with Relationship Context dropdowns.
+- Export for ChatGPT now exports the selected context instead of manually selected relationships.
+- ERD View now displays the selected context instead of manually selected relationships.
+
+### Preserved
+- Table inference from context relationships.
+- Whole database export option.
+- Active relationship filtering.
+- Graphviz ERD.
+- Markdown, JSON, and Mermaid export options.
+- Export log deduplication during Streamlit reruns.
+
+---
+
+## v2.2.11 Patch — Relationship Selection, Export Scope Fix, and Log Deduplication
+
+### Added
+- Relationship multiselect for Export for ChatGPT.
+- Relationship multiselect for ERD View.
+- Option to show only tables connected to selected relationships.
+- Manual-only and conditional-only relationship presets.
+
+### Fixed
+- Export quality checks can infer tables from selected relationships.
+- Contexts with relationships but empty/mismatched table assignment no longer automatically report zero included tables.
+- Reduced repeated export warning logs during Streamlit reruns.
+
+### Preserved
+- Existing whole database export.
+- Existing active context export.
+- Existing Graphviz ERD.
+- Existing Markdown, JSON, and Mermaid export options.
+
+---
+
+## v2.2.10 Patch — Streamlit Session State Warning Fix
+
+### Fixed
+- Removed duplicate default/session-state handling for `manual_picklist_confidence`.
+- Prevented the Streamlit warning about a widget being created with a default value while also being set through Session State.
+
+### Preserved
+- Dynamic relationship suggestions.
+- Auto-apply suggested join and confidence.
+- Manual override workflow.
+- Relationship registry and export workflows.
+
+---
+
+## v2.2.9 Patch — Dynamic Relationship Suggestion Controls
+
+### Added
+- Dynamic relationship suggestions based on selected cardinality.
+- Auto-apply suggested join and confidence option.
+- Manual override when auto-apply is disabled.
+
+### Changed
+- Suggested join now reacts to cardinality.
+- Suggestion reason now explains both cardinality and field analysis.
+
+### Preserved
+- Context-scoped relationship picklists.
+- Relationship registry.
+- Existing ERD/export behaviour.
+
+---
+
 ## v2.2.8 Patch — Export Quality Helper Import Fix
 
 ### Fixed

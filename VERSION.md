@@ -1,7 +1,7 @@
 # Version
 
-Current Version: v2.2.8 Patch
+Current Version: v2.2.12 Patch
 
-Version Name: Export Quality Helper Import Fix
+Version Name: Context-Based ERD and Export Selection
 
-Status: Export quality helper import repaired and export readiness panel preserved.
+Status: Export and ERD use Relationship Context dropdowns instead of relationship multiselects.

@@ -158,3 +158,23 @@ The Relationships tab can suggest cardinality, join type, and confidence values 
 ## Export Quality Checks
 
 The Export for ChatGPT tab includes an export readiness checklist and completeness score. It highlights broken relationships, disconnected tables, missing relationship descriptions, and conditional relationships missing condition SQL before export.
+
+
+## Dynamic Relationship Suggestions
+
+The Relationships tab can suggest join type and confidence based on the selected cardinality and selected source/target fields. Enable **Auto-apply suggested join and confidence** to update those controls automatically, or turn it off for manual override.
+
+
+## Streamlit Session State Warning Fix
+
+The relationship confidence slider now uses Streamlit Session State without also passing a duplicate widget default value. This prevents repeated Streamlit warnings while preserving auto-apply suggested confidence behaviour.
+
+
+## Relationship Selection for Export and ERD
+
+The Export for ChatGPT and ERD View tabs include relationship multiselect controls. You can export or visualise all relationships, manual-only relationships, conditional-only relationships, or a custom selection. The app can also show only tables connected to selected relationships.
+
+
+## Context-Based ERD and Export Selection
+
+The Export for ChatGPT and ERD View tabs use Relationship Context dropdowns. Selecting a context includes all active relationships in that context and can infer the connected tables from relationship endpoints.

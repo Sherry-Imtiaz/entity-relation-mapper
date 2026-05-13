@@ -190,3 +190,138 @@ def columns_df(table: TableInfo) -> pd.DataFrame:
         )
     return pd.DataFrame(rows)
 
+
+# -----------------------------------------------------------------------------
+# v2.2.11 Relationship selection helpers
+# -----------------------------------------------------------------------------
+
+
+def _rel_full_table(schema_name: str, table_name: str) -> str:
+    schema = (schema_name or "").strip()
+    table = (table_name or "").strip()
+    return f"{schema}.{table}" if schema else table
+
+
+def relationship_label(rel) -> str:
+    source_full = getattr(rel, "source_full_table", None) or _rel_full_table(
+        getattr(rel, "source_schema", ""),
+        getattr(rel, "source_table", ""),
+    )
+    target_full = getattr(rel, "target_full_table", None) or _rel_full_table(
+        getattr(rel, "target_schema", ""),
+        getattr(rel, "target_table", ""),
+    )
+    label = f"{source_full}.{getattr(rel, 'source_column', '')} → {target_full}.{getattr(rel, 'target_column', '')}"
+    rel_type = getattr(rel, "relationship_type", "")
+    if rel_type:
+        label += f" [{rel_type}]"
+    return label
+
+
+def relationships_for_scope(state, context_id=None, active_only=True):
+    rels = {}
+    for rel_id, rel in getattr(state, "relationships", {}).items():
+        if context_id and getattr(rel, "context_id", "") != context_id:
+            continue
+        if active_only and not bool(getattr(rel, "active", True)):
+            continue
+        rels[rel_id] = rel
+    return rels
+
+
+def selected_relationships_multiselect(
+    state,
+    context_id=None,
+    key_prefix="relationship_select",
+    active_only_default=True,
+):
+    active_only = st.checkbox(
+        "Active relationships only",
+        value=active_only_default,
+        key=f"{key_prefix}_active_only",
+        help="When enabled, inactive relationships are hidden from the selector.",
+    )
+
+    rels = relationships_for_scope(state, context_id=context_id, active_only=active_only)
+
+    if not rels:
+        st.info("No relationships are available for this scope.")
+        return [], rels
+
+    option_ids = sorted(rels.keys(), key=lambda rid: relationship_label(rels[rid]).lower())
+    label_by_id = {rid: relationship_label(rels[rid]) for rid in option_ids}
+
+    preset = st.radio(
+        "Relationship preset",
+        ["All", "Manual only", "Conditional only", "Custom"],
+        horizontal=True,
+        key=f"{key_prefix}_preset",
+        help="Quickly choose which relationship types to include.",
+    )
+
+    if preset == "Manual only":
+        default_ids = [
+            rid for rid in option_ids
+            if (getattr(rels[rid], "relationship_type", "") or "").lower() == "manual"
+        ]
+    elif preset == "Conditional only":
+        default_ids = [
+            rid for rid in option_ids
+            if (getattr(rels[rid], "relationship_type", "") or "").lower() == "conditional"
+            or bool((getattr(rels[rid], "condition_sql", "") or "").strip())
+        ]
+    else:
+        default_ids = option_ids
+
+    if preset == "Custom":
+        default_ids = st.session_state.get(f"{key_prefix}_selected", option_ids)
+
+    selected_labels = st.multiselect(
+        "Relationships to include",
+        options=[label_by_id[rid] for rid in option_ids],
+        default=[label_by_id[rid] for rid in default_ids if rid in label_by_id],
+        key=f"{key_prefix}_labels",
+        help="Choose exactly which relationships should be included in the export or ERD.",
+    )
+
+    label_to_id = {label: rid for rid, label in label_by_id.items()}
+    selected_ids = [label_to_id[label] for label in selected_labels if label in label_to_id]
+    st.session_state[f"{key_prefix}_selected"] = selected_ids
+
+    return selected_ids, rels
+
+
+def build_selected_relationship_state(state, selected_relationship_ids, include_connected_tables_only=True):
+    import copy
+
+    scoped_state = copy.deepcopy(state)
+    selected_set = set(selected_relationship_ids or [])
+
+    if selected_set:
+        scoped_state.relationships = {
+            rid: rel
+            for rid, rel in getattr(state, "relationships", {}).items()
+            if rid in selected_set
+        }
+
+        if include_connected_tables_only:
+            connected = set()
+            for rel in scoped_state.relationships.values():
+                source_full = getattr(rel, "source_full_table", None) or _rel_full_table(
+                    getattr(rel, "source_schema", ""),
+                    getattr(rel, "source_table", ""),
+                )
+                target_full = getattr(rel, "target_full_table", None) or _rel_full_table(
+                    getattr(rel, "target_schema", ""),
+                    getattr(rel, "target_table", ""),
+                )
+                connected.add(source_full)
+                connected.add(target_full)
+
+            scoped_state.tables = {
+                table_key: table
+                for table_key, table in getattr(state, "tables", {}).items()
+                if table_key in connected
+            }
+
+    return scoped_state

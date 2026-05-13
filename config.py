@@ -2,9 +2,56 @@ from pathlib import Path
 
 STATE_FILE = Path("erd_mapper_state.json")
 
-APP_VERSION = "v2.2.8"
-APP_VERSION_NAME = "Export Quality Helper Import Fix"
+APP_VERSION = "v2.2.12"
+APP_VERSION_NAME = "Context-Based ERD and Export Selection"
 APP_CHANGELOG = [
+    {
+        "version": "v2.2.12 Patch",
+        "title": "Context-Based ERD and Export Selection",
+        "changes": [
+            "Removed relationship multiselect controls from Export for ChatGPT.",
+            "Removed relationship multiselect controls from ERD View.",
+            "Added Relationship Context dropdown selection for Export for ChatGPT.",
+            "Added Relationship Context dropdown selection for ERD View.",
+            "Export and ERD now include all active relationships from the selected context.",
+            "Kept table inference from context relationships to avoid zero-table context exports.",
+            "Kept export log deduplication during Streamlit reruns."
+        ],
+    },
+    {
+        "version": "v2.2.11 Patch",
+        "title": "Relationship Selection, Export Scope Fix, and Log Deduplication",
+        "changes": [
+            "Added relationship multiselect controls to Export for ChatGPT.",
+            "Added relationship multiselect controls to ERD View.",
+            "Added option to show only tables connected to selected relationships.",
+            "Updated export quality checks to infer tables from selected relationships.",
+            "Fixed cases where contexts with relationships but no assigned tables were reported as zero-table exports.",
+            "Reduced repeated export warning logs during Streamlit reruns."
+        ],
+    },
+    {
+        "version": "v2.2.10 Patch",
+        "title": "Streamlit Session State Warning Fix",
+        "changes": [
+            "Fixed Streamlit warning for manual_picklist_confidence being set through Session State and also given a widget default value.",
+            "Initialised manual_picklist_confidence only when the Session State key is missing.",
+            "Removed the explicit value argument from the confidence slider.",
+            "Preserved dynamic relationship suggestion and auto-apply behaviour.",
+            "Re-ran compile validation across the modular project files."
+        ],
+    },
+    {
+        "version": "v2.2.9 Patch",
+        "title": "Dynamic Relationship Suggestion Controls",
+        "changes": [
+            "Updated relationship suggestions to react to the selected cardinality.",
+            "Added auto-apply suggested join and confidence behaviour.",
+            "Kept manual override available when auto-apply is disabled.",
+            "Updated suggestion reasons to explain the selected cardinality and field analysis.",
+            "Rebuilt ui_relationships.py to keep indentation stable."
+        ],
+    },
     {
         "version": "v2.2.8 Patch",
         "title": "Export Quality Helper Import Fix",

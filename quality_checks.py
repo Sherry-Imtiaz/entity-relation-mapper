@@ -35,11 +35,26 @@ def _context_tables(state: ErdState, context_id: Optional[str]) -> Dict[str, Tab
     table_keys = set(getattr(context, "table_keys", []) or [])
     if not table_keys:
         table_keys = set(getattr(context, "tables", []) or [])
+    if not table_keys:
+        table_keys = set(getattr(context, "assigned_tables", []) or [])
 
     return {key: table for key, table in state.tables.items() if key in table_keys}
 
 
-def _context_relationships(state: ErdState, context_id: Optional[str]) -> Dict[str, Relationship]:
+def _context_relationships(
+    state: ErdState,
+    context_id: Optional[str],
+    selected_relationship_ids: Optional[List[str]] = None,
+) -> Dict[str, Relationship]:
+    selected = set(selected_relationship_ids or [])
+
+    if selected:
+        return {
+            rel_id: rel
+            for rel_id, rel in state.relationships.items()
+            if rel_id in selected
+        }
+
     if not context_id:
         return dict(state.relationships)
 
@@ -50,9 +65,34 @@ def _context_relationships(state: ErdState, context_id: Optional[str]) -> Dict[s
     }
 
 
-def build_export_quality_report(state: ErdState, context_id: Optional[str] = None) -> Dict[str, Any]:
+def _infer_tables_from_relationships(state: ErdState, relationships: Dict[str, Relationship]) -> Dict[str, TableInfo]:
+    inferred: Dict[str, TableInfo] = {}
+
+    for rel in relationships.values():
+        source_full, target_full = _relationship_tables(rel)
+        if source_full in state.tables:
+            inferred[source_full] = state.tables[source_full]
+        if target_full in state.tables:
+            inferred[target_full] = state.tables[target_full]
+
+    return inferred
+
+
+def build_export_quality_report(
+    state: ErdState,
+    context_id: Optional[str] = None,
+    selected_relationship_ids: Optional[List[str]] = None,
+    infer_tables_from_relationships: bool = True,
+) -> Dict[str, Any]:
+    relationships = _context_relationships(state, context_id, selected_relationship_ids)
     tables = _context_tables(state, context_id)
-    relationships = _context_relationships(state, context_id)
+
+    if infer_tables_from_relationships and relationships:
+        inferred_tables = _infer_tables_from_relationships(state, relationships)
+        if selected_relationship_ids or not tables:
+            tables = inferred_tables
+        else:
+            tables = {**tables, **inferred_tables}
 
     table_keys: Set[str] = set(tables.keys())
     relationship_table_keys: Set[str] = set()
@@ -113,7 +153,6 @@ def build_export_quality_report(state: ErdState, context_id: Optional[str] = Non
             )
 
     tables_without_relationships = sorted(table_keys - relationship_table_keys)
-
     columns_included = sum(len(getattr(table, "columns", []) or []) for table in tables.values())
 
     context = state.relationship_contexts.get(context_id) if context_id else None
@@ -122,6 +161,7 @@ def build_export_quality_report(state: ErdState, context_id: Optional[str] = Non
         "context_id": context_id or "",
         "context_name": getattr(context, "name", "Whole database") if context else "Whole database",
         "context_type": getattr(context, "context_type", "") if context else "",
+        "selected_relationships": list(selected_relationship_ids or []),
         "tables_included": len(tables),
         "columns_included": columns_included,
         "relationships_included": len(relationships),
