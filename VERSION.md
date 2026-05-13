@@ -1,7 +1,7 @@
 # Version
 
-Current Version: v2.2.13 Patch
+Current Version: v2.2.14 Patch
 
-Version Name: Validation Fix, Clean Context Export, and Log Sorting
+Version Name: Context-Safe IDs and Duplicate Relationship Handling
 
-Status: Validation summary fixed, Export/ERD/Logs modules rebuilt cleanly, and log sorting added.
+Status: Relationship IDs are context-safe and duplicate connections are detected before saving.

@@ -183,3 +183,8 @@ The Export for ChatGPT and ERD View tabs use Relationship Context dropdowns. Sel
 ## v2.2.13 Validation Fix, Clean Export, and Log Sorting
 
 This release rebuilds the Export, ERD, and Logs modules cleanly, fixes the relationship validation summary call, strengthens table inference for context exports, and adds log sorting by timestamp, severity/log type, module, action, and message.
+
+
+## Context-Safe IDs and Duplicate Relationship Handling
+
+Relationships now include context identity in their generated IDs, preventing identical table/column connections in different relationship contexts from overwriting each other. The app warns when a duplicate connection already exists in another context and offers duplicate handling options, including use of a Shared Relationships context.

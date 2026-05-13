@@ -1,5 +1,24 @@
 # Entity Relation Mapper — Changelog
 
+## v2.2.14 Patch — Context-Safe IDs and Duplicate Relationship Handling
+
+### Added
+- Context-safe relationship IDs.
+- Duplicate connection warning when adding a relationship.
+- Duplicate handling options.
+- Shared Relationships context support.
+- Whole database relationship deduplication helpers.
+
+### Fixed
+- Identical source/target connections in different contexts no longer overwrite each other.
+
+### Preserved
+- Context-specific ERD and export behaviour.
+- Relationship Context dropdown workflow.
+- Existing saved relationships.
+
+---
+
 ## v2.2.13 Patch — Validation Fix, Clean Context Export, and Log Sorting
 
 ### Fixed

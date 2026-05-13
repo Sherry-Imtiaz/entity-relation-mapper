@@ -2,9 +2,20 @@ from pathlib import Path
 
 STATE_FILE = Path("erd_mapper_state.json")
 
-APP_VERSION = "v2.2.13"
-APP_VERSION_NAME = "Validation Fix, Clean Context Export, and Log Sorting"
+APP_VERSION = "v2.2.14"
+APP_VERSION_NAME = "Context-Safe IDs and Duplicate Relationship Handling"
 APP_CHANGELOG = [
+    {
+        "version": "v2.2.14 Patch",
+        "title": "Context-Safe IDs and Duplicate Relationship Handling",
+        "changes": [
+            "Added context-safe relationship IDs so identical connections can exist in different relationship contexts without overwriting each other.",
+            "Added duplicate connection detection when adding relationships.",
+            "Added duplicate handling options: do not add duplicate, add to this context anyway, or extract/use Shared Relationships context.",
+            "Added relationship_duplicates.py for duplicate detection and whole database deduplication helpers.",
+            "Preserved context-specific relationship views and exports."
+        ],
+    },
     {
         "version": "v2.2.13 Patch",
         "title": "Validation Fix, Clean Context Export, and Log Sorting",
