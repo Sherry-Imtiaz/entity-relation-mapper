@@ -2,9 +2,21 @@ from pathlib import Path
 
 STATE_FILE = Path("erd_mapper_state.json")
 
-APP_VERSION = "v2.2.12"
-APP_VERSION_NAME = "Context-Based ERD and Export Selection"
+APP_VERSION = "v2.2.13"
+APP_VERSION_NAME = "Validation Fix, Clean Context Export, and Log Sorting"
 APP_CHANGELOG = [
+    {
+        "version": "v2.2.13 Patch",
+        "title": "Validation Fix, Clean Context Export, and Log Sorting",
+        "changes": [
+            "Fixed relationship validation summary call so it receives the application state instead of validation results.",
+            "Fully rebuilt ui_export.py to remove older appended export code paths.",
+            "Fully rebuilt ui_erd.py to remove older appended ERD code paths.",
+            "Fully rebuilt ui_logs.py with sorting by timestamp, severity/log type, module, action, and message.",
+            "Strengthened quality_checks.py table inference using normalised table matching.",
+            "Preserved context-based export and ERD selection."
+        ],
+    },
     {
         "version": "v2.2.12 Patch",
         "title": "Context-Based ERD and Export Selection",

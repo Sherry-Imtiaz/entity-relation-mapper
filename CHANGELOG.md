@@ -1,5 +1,26 @@
 # Entity Relation Mapper — Changelog
 
+## v2.2.13 Patch — Validation Fix, Clean Context Export, and Log Sorting
+
+### Fixed
+- Fixed relationship validation error: `'DataFrame' object has no attribute 'relationships'`.
+- Rebuilt `ui_export.py` so old export warning paths are removed.
+- Rebuilt `ui_erd.py` so old ERD paths are removed.
+- Strengthened table inference for context export quality checks.
+
+### Added
+- Sort Logs & Errors by timestamp, severity/log type, module, action, or message.
+- Sort direction control.
+
+### Preserved
+- Relationship Context dropdowns for Export and ERD.
+- Whole database option.
+- Active relationship filtering.
+- Graphviz ERD.
+- Markdown, JSON, and Mermaid export options.
+
+---
+
 ## v2.2.12 Patch — Context-Based ERD and Export Selection
 
 ### Changed

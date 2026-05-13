@@ -178,3 +178,8 @@ The Export for ChatGPT and ERD View tabs include relationship multiselect contro
 ## Context-Based ERD and Export Selection
 
 The Export for ChatGPT and ERD View tabs use Relationship Context dropdowns. Selecting a context includes all active relationships in that context and can infer the connected tables from relationship endpoints.
+
+
+## v2.2.13 Validation Fix, Clean Export, and Log Sorting
+
+This release rebuilds the Export, ERD, and Logs modules cleanly, fixes the relationship validation summary call, strengthens table inference for context exports, and adds log sorting by timestamp, severity/log type, module, action, and message.

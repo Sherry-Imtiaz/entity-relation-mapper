@@ -487,7 +487,7 @@ def render_relationship_registry(state: ErdState) -> None:
     with st.expander("Relationship validation", expanded=False):
         try:
             issues = validate_relationships(state)
-            summary = relationship_quality_summary(issues)
+            summary = relationship_quality_summary(state)
             if isinstance(summary, dict):
                 cols = st.columns(min(4, max(1, len(summary))))
                 for idx, (label, value) in enumerate(summary.items()):
