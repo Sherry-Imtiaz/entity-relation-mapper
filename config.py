@@ -2,9 +2,19 @@ from pathlib import Path
 
 STATE_FILE = Path("erd_mapper_state.json")
 
-APP_VERSION = "v2.2.7"
-APP_VERSION_NAME = "Export Future Import Order Fix"
+APP_VERSION = "v2.2.8"
+APP_VERSION_NAME = "Export Quality Helper Import Fix"
 APP_CHANGELOG = [
+    {
+        "version": "v2.2.8 Patch",
+        "title": "Export Quality Helper Import Fix",
+        "changes": [
+            "Fixed NameError in ui_export.py where report_to_issue_rows was not available to the export quality panel helper.",
+            "Moved the quality_checks imports to module scope where helper functions can access them.",
+            "Preserved export readiness checklist and context completeness scoring.",
+            "Re-ran compile validation across the modular project files."
+        ],
+    },
     {
         "version": "v2.2.7 Patch",
         "title": "Export Future Import Order Fix",

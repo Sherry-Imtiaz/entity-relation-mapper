@@ -1,5 +1,19 @@
 # Entity Relation Mapper — Changelog
 
+## v2.2.8 Patch — Export Quality Helper Import Fix
+
+### Fixed
+- Fixed `NameError: name 'report_to_issue_rows' is not defined` in `ui_export.py`.
+- Made `report_to_issue_rows` available to `_render_export_quality_panel()`.
+
+### Preserved
+- Export readiness checklist.
+- Relationship completeness score.
+- Context quality summary.
+- Existing export workflows.
+
+---
+
 ## v2.2.7 Patch — Export Future Import Order Fix
 
 ### Fixed

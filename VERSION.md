@@ -1,7 +1,7 @@
 # Version
 
-Current Version: v2.2.7 Patch
+Current Version: v2.2.8 Patch
 
-Version Name: Export Future Import Order Fix
+Version Name: Export Quality Helper Import Fix
 
-Status: ui_export.py future import order repaired and export quality checks preserved.
+Status: Export quality helper import repaired and export readiness panel preserved.

@@ -39,6 +39,7 @@ from exports import (
 )
 from visualisation import build_streamlit_flow_state_from_erd_state
 from ui_shared import *
+from quality_checks import build_export_quality_report, report_to_issue_rows
 
 
 def render_export_tab(state: ErdState) -> None:
@@ -163,6 +164,8 @@ def _build_export_state_for_scope(state: ErdState, scope: str):
 
 
 def _render_export_quality_panel(report: dict) -> None:
+    from quality_checks import report_to_issue_rows
+
     st.markdown("### Export readiness")
 
     score = int(report.get("score", 0))
@@ -266,8 +269,6 @@ def _fallback_json_export(state: ErdState) -> str:
 
 
 def render_export_tab(state: ErdState) -> None:
-
-    from quality_checks import build_export_quality_report, report_to_issue_rows
 
     st.subheader("Export for ChatGPT")
     st.caption("Export database and relationship context for SQL/query generation support.")
