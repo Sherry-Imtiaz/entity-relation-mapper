@@ -143,3 +143,18 @@ app_pre_v2_1_0_phase4_backup.py
 ```
 
 Use this backup if you need to revert the `app.py` shell after Phase 4 packaging.
+
+
+## Logs & Errors
+
+The app records local troubleshooting events in `erm_error_log.json`. Use the Logs & Errors tab to filter, search, download, or clear log entries.
+
+
+## Relationship Guidance
+
+The Relationships tab can suggest cardinality, join type, and confidence values based on the selected source and target fields. Suggestions are user-controlled and only apply when you select **Apply suggested options**.
+
+
+## Export Quality Checks
+
+The Export for ChatGPT tab includes an export readiness checklist and completeness score. It highlights broken relationships, disconnected tables, missing relationship descriptions, and conditional relationships missing condition SQL before export.

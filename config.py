@@ -2,9 +2,152 @@ from pathlib import Path
 
 STATE_FILE = Path("erd_mapper_state.json")
 
-APP_VERSION = "v2.1.2"
-APP_VERSION_NAME = "Graphviz Escape Sequence Fix"
+APP_VERSION = "v2.2.7"
+APP_VERSION_NAME = "Export Future Import Order Fix"
 APP_CHANGELOG = [
+    {
+        "version": "v2.2.7 Patch",
+        "title": "Export Future Import Order Fix",
+        "changes": [
+            "Fixed ui_export.py import order so from __future__ import annotations appears at the top of the file.",
+            "Removed duplicate future imports from ui_export.py if present.",
+            "Preserved export quality checks and context completeness functionality.",
+            "Re-ran compile validation across the modular project files."
+        ],
+    },
+    {
+        "version": "v2.2.6 Patch",
+        "title": "Export Quality Checks and Context Completeness",
+        "changes": [
+            "Added quality_checks.py for export readiness analysis.",
+            "Added export readiness checklist to the Export for ChatGPT tab.",
+            "Added relationship completeness score and quality status label.",
+            "Added detection for broken relationships, missing descriptions, disconnected tables, and missing conditional SQL.",
+            "Added warning panel for incomplete exports without blocking export generation.",
+            "Added optional logging for export quality reports and export generation."
+        ],
+    },
+    {
+        "version": "v2.2.5 Patch",
+        "title": "Relationships Module Rebuild",
+        "changes": [
+            "Fully rebuilt ui_relationships.py to remove persistent indentation corruption.",
+            "Backed up the previous ui_relationships.py before replacement.",
+            "Preserved context-scoped relationship picklists.",
+            "Preserved relationship guidance, suggested options, and Apply Suggested Options behaviour.",
+            "Preserved relationship registry, validation display, update, and delete actions."
+        ],
+    },
+    {
+        "version": "v2.2.4 Patch",
+        "title": "Relationship Guidance Indentation Fix",
+        "changes": [
+            "Fixed IndentationError in ui_relationships.py introduced by the relationship guidance patch.",
+            "Replaced the manual relationship picklist form with a clean, consistently indented implementation.",
+            "Preserved relationship suggestion guidance, Apply Suggested Options, and logging behaviour.",
+            "Re-ran compile validation across the modular project files."
+        ],
+    },
+    {
+        "version": "v2.2.3 Patch",
+        "title": "Relationship Guidance and Auto-Suggestions",
+        "changes": [
+            "Added relationship_guidance.py for relationship option recommendations.",
+            "Added suggested cardinality, join type, and confidence guidance to the Relationships tab.",
+            "Added an Apply Suggested Options button for manual relationship creation.",
+            "Added warning guidance for same-table/self-join relationships.",
+            "Added logging when suggested relationship options are applied.",
+            "Preserved user control by not automatically overwriting relationship form selections."
+        ],
+    },
+    {
+        "version": "v2.2.2 Patch",
+        "title": "Logs and Errors Page",
+        "changes": [
+            "Added logger.py for local JSON application logging.",
+            "Added ui_logs.py for a Logs & Errors page.",
+            "Added Logs & Errors tab to the main Streamlit app.",
+            "Added severity, module, and search filters for log review.",
+            "Added log download and clear-log actions.",
+            "Added erm_error_log.json to .gitignore.",
+            "Preserved existing app data model and saved-state compatibility."
+        ],
+    },
+    {
+        "version": "v2.2.1 Patch",
+        "title": "Remove Residual Development UI Text",
+        "changes": [
+            "Removed remaining frontend text that referenced removed visual relationship creation.",
+            "Removed remaining Streamlit Flow implementation wording from user-facing UI files where detected.",
+            "Replaced internal implementation-history messages with clean user guidance.",
+            "Preserved existing app behaviour and relationship data model."
+        ],
+    },
+    {
+        "version": "v2.2.0 Phase 1",
+        "title": "UI Cleanup and Tooltips",
+        "changes": [
+            "Removed development-history wording from the frontend where detected.",
+            "Added a Getting Started workflow guide in the app sidebar.",
+            "Added a relationship field guide to the Relationships tab.",
+            "Added contextual help text to relationship creation fields where possible.",
+            "Improved ERD View wording so technical implementation details are less visible.",
+            "Preserved existing relationship data model and saved-state compatibility."
+        ],
+    },
+    {
+        "version": "v2.1.7 Patch",
+        "title": "ERD Visual Simplification",
+        "changes": [
+            "Removed Streamlit Flow as the active ERD visual component.",
+            "Restored Graphviz as the main ERD visualisation.",
+            "Kept Mermaid as text/export only.",
+            "Updated Mermaid and Graphviz ERD output to show a maximum of 10 fields per table.",
+            "Prioritised primary keys and ID/key-like fields in ERD table schema display.",
+            "Removed streamlit-flow-component from requirements.txt."
+        ],
+    },
+    {
+        "version": "v2.1.6 Patch",
+        "title": "Context-Based Manual Relationship Picklists",
+        "changes": [
+            "Added context-scoped source table dropdown for manual relationship creation.",
+            "Added context-scoped target table dropdown for manual relationship creation.",
+            "Added source and target column dropdowns based on the selected context tables.",
+            "Added schema filters and table search fields for source and target picklists.",
+            "Kept standard and conditional relationship creation in the same Relationships workflow.",
+            "Restricted manual relationship creation to tables assigned to the active relationship context."
+        ],
+    },
+    {
+        "version": "v2.1.5 Patch",
+        "title": "Literal Newline Escape Cleanup",
+        "changes": [
+            "Fixed config.py where literal backslash-n text was written into APP_CHANGELOG.",
+            "Fixed ui_shared.py where literal backslash-n text was appended after a Streamlit warning call.",
+            "Repaired Python source formatting after v2.1.4 helper patch.",
+            "Re-ran compile validation across the modular project files."
+        ],
+    },
+    {
+        "version": "v2.1.4 Patch",
+        "title": "UI Tables DataFrame Helper Fix",
+        "changes": [
+            "Fixed Tables tab failure caused by columns_df not being defined after UI module extraction.",
+            "Added columns_df helper to ui_shared.py.",
+            "Added tables_df helper to ui_shared.py for completeness.",
+            "Preserved modular UI structure from v2.1.0 Phase 3."
+        ],
+    },
+    {
+        "version": "v2.1.3 Patch",
+        "title": "Importer table_key Fix",
+        "changes": [
+            "Fixed schema import failure caused by table_key not being defined in importers.py.",
+            "Added local table_key helper to importers.py so import logic no longer depends on UI helper modules.",
+            "Preserved modular separation between import logic and UI helpers."
+        ],
+    },
     {
         "version": "v2.1.2 Patch",
         "title": "Graphviz Escape Sequence Fix",

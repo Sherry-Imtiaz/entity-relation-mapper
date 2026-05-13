@@ -140,6 +140,8 @@ from ui_relationships import render_relationships_tab
 from ui_inference import render_inference_tab
 from ui_erd import render_erd_tab
 from ui_export import render_export_tab
+from ui_logs import render_logs_tab
+from logger import log_info, log_exception
 
 
 # -----------------------------------------------------------------------------
@@ -499,11 +501,33 @@ def relationship_context_warning(state: ErdState) -> None:
 
 
 def main() -> None:
+    if not st.session_state.get("erm_startup_logged"):
+        try:
+            log_info("Application", "startup", "Entity Relation Mapper started")
+        except Exception:
+            pass
+        st.session_state["erm_startup_logged"] = True
+
     st.set_page_config(page_title="Entity Relation Mapper", layout="wide")
     state = ensure_state()
 
     st.title("Entity Relation Mapper")
     st.caption(f"Version: {APP_VERSION} — {APP_VERSION_NAME}")
+
+    with st.sidebar:
+        st.markdown("### Getting Started")
+        st.markdown(
+            """
+1. Import schema metadata
+2. Create a relationship context
+3. Assign tables to the context
+4. Add manual or conditional relationships
+5. Review the ERD
+6. Export context for ChatGPT or SQL support
+"""
+        )
+        st.divider()
+        st.caption("Tip: Start with one focused relationship context, such as Property Ownership or Payments.")
     st.caption("Import tables/columns from CSV or Excel, map relationships, add conditional joins, and export a ChatGPT-ready ERD map.")
 
     with st.sidebar:
@@ -705,14 +729,14 @@ def main() -> None:
     metric_cols[3].metric("Active", sum(1 for r in state.relationships.values() if r.active))
     metric_cols[4].metric("Conditional", sum(1 for r in state.relationships.values() if r.relationship_type == "conditional"))
 
-    tab_contexts, tab_tables, tab_relationships, tab_infer, tab_erd, tab_export = st.tabs([
+    tab_contexts, tab_tables, tab_relationships, tab_infer, tab_erd, tab_export, tab_logs = st.tabs([
         "Relationship Contexts",
         "Tables",
         "Relationships",
         "Infer Links",
         "ERD View",
         "Export for ChatGPT",
-    ])
+        "Logs & Errors",])
 
     # ---------------------------------------------------------------------
     # Relationship Contexts tab
@@ -734,6 +758,9 @@ def main() -> None:
 
     with tab_export:
         render_export_tab(state)
+
+    with tab_logs:
+        render_logs_tab(state)
 
 if __name__ == "__main__":
     main()

@@ -20,6 +20,14 @@ def singularize(name: str) -> str:
     return n
 
 
+
+def table_key(schema_name: str, table_name: str) -> str:
+    """Return the standard full table key used by the ERD mapper."""
+    schema = (schema_name or "").strip()
+    table = (table_name or "").strip()
+    return f"{schema}.{table}" if schema else table
+
+
 def rel_id(
     source_schema: str,
     source_table: str,

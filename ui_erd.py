@@ -59,7 +59,7 @@ def render_erd_tab(state: ErdState) -> None:
 
             if streamlit_flow is None:
                 st.error(
-                    "Streamlit Flow visualisation is not available because streamlit-flow-component is not installed. "
+                    "ERD visualisation is not available because streamlit-flow-component is not installed. "
                     "Install it with: pip install streamlit-flow-component"
                 )
             else:
@@ -85,11 +85,11 @@ def render_erd_tab(state: ErdState) -> None:
                         show_minimap=True,
                     )
 
-            with st.expander("Graphviz ERD fallback"):
+            with st.expander("ERD diagram"):
                 dot = export_dot(display_state, only_active=only_active)
                 st.graphviz_chart(dot, width="stretch")
                 st.download_button(
-                    "Download Graphviz DOT",
+                    "Download ERD source",
                     data=dot,
                     file_name="erd_graphviz.dot",
                     mime="text/plain",
@@ -108,3 +108,60 @@ def render_erd_tab(state: ErdState) -> None:
     # ---------------------------------------------------------------------
     # Export tab
     # ---------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
+# v2.1.7 ERD visual simplification override
+# -----------------------------------------------------------------------------
+
+def render_erd_tab(state: ErdState) -> None:
+    st.subheader("ERD View")
+
+    only_active = st.checkbox("Only active relationships", value=True, key="erd_only_active")
+    active_ctx = get_active_context(state)
+
+    erd_scope_options = ["Whole database", "Active relationship context"]
+    erd_scope = st.radio(
+        "ERD scope",
+        erd_scope_options,
+        index=1 if active_ctx else 0,
+        horizontal=True,
+    )
+
+    if not state.tables:
+        st.info("Load tables first.")
+        return
+
+    display_state = state
+    if erd_scope == "Active relationship context":
+        if active_ctx:
+            display_state = build_context_scoped_state(state, active_ctx.id)
+            st.info(f"Showing ERD for context: {active_ctx.name}")
+        else:
+            st.warning("No active context selected. Showing whole database instead.")
+
+    st.caption(
+        "ERD diagram view. Each table shows a compact schema preview with a maximum of 10 prioritised fields."
+    )
+
+    dot = export_dot(display_state, only_active=only_active)
+    st.graphviz_chart(dot, width="stretch")
+
+    with st.expander("ERD source and download"):
+        st.code(dot, language="dot")
+        st.download_button(
+            "Download ERD source",
+            data=dot,
+            file_name="erd_graphviz.dot",
+            mime="text/plain",
+        )
+
+    with st.expander("Mermaid export text"):
+        mermaid = export_mermaid(display_state, only_active=only_active)
+        st.code(mermaid, language="mermaid")
+        st.download_button(
+            "Download Mermaid ERD",
+            data=mermaid,
+            file_name="erd_mermaid.mmd",
+            mime="text/plain",
+        )

@@ -1,0 +1,112 @@
+/* ============================================================
+   Entity Relation Mapper - SQL Server Schema Export
+   Format: one row per table column
+
+   Includes only tables with:
+   - at least one column
+   - at least one row / entry
+   ============================================================ */
+
+USE [YourDatabaseName];
+GO
+
+WITH TableRowCounts AS (
+    SELECT
+        p.object_id,
+        SUM(p.rows) AS row_count
+    FROM sys.partitions p
+    WHERE p.index_id IN (0, 1)   -- heap or clustered index
+    GROUP BY p.object_id
+),
+PrimaryKeyColumns AS (
+    SELECT
+        ic.object_id,
+        ic.column_id
+    FROM sys.indexes i
+    INNER JOIN sys.index_columns ic
+        ON i.object_id = ic.object_id
+       AND i.index_id = ic.index_id
+    WHERE i.is_primary_key = 1
+)
+SELECT
+    s.name AS schema_name,
+    t.name AS table_name,
+    c.name AS column_name,
+
+    CASE
+        WHEN ty.name IN ('varchar', 'char', 'varbinary', 'binary')
+            THEN ty.name + '(' +
+                 CASE 
+                    WHEN c.max_length = -1 THEN 'max'
+                    ELSE CAST(c.max_length AS varchar(20))
+                 END + ')'
+
+        WHEN ty.name IN ('nvarchar', 'nchar')
+            THEN ty.name + '(' +
+                 CASE 
+                    WHEN c.max_length = -1 THEN 'max'
+                    ELSE CAST(c.max_length / 2 AS varchar(20))
+                 END + ')'
+
+        WHEN ty.name IN ('decimal', 'numeric')
+            THEN ty.name + '(' +
+                 CAST(c.precision AS varchar(20)) + ',' +
+                 CAST(c.scale AS varchar(20)) + ')'
+
+        WHEN ty.name IN ('datetime2', 'datetimeoffset', 'time')
+            THEN ty.name + '(' + CAST(c.scale AS varchar(20)) + ')'
+
+        ELSE ty.name
+    END AS data_type,
+
+    CASE
+        WHEN c.is_nullable = 1 THEN 'yes'
+        ELSE 'no'
+    END AS nullable,
+
+    CASE
+        WHEN pk.column_id IS NOT NULL THEN 'yes'
+        ELSE 'no'
+    END AS is_primary_key,
+
+    c.column_id AS ordinal_position,
+
+    rc.row_count AS row_count,
+
+    s.name AS module,
+
+    '' AS purpose,
+    '' AS notes,
+
+    CAST(ep.value AS nvarchar(max)) AS comment
+
+FROM sys.tables t
+INNER JOIN sys.schemas s
+    ON t.schema_id = s.schema_id
+INNER JOIN sys.columns c
+    ON t.object_id = c.object_id
+INNER JOIN sys.types ty
+    ON c.user_type_id = ty.user_type_id
+INNER JOIN TableRowCounts rc
+    ON t.object_id = rc.object_id
+LEFT JOIN PrimaryKeyColumns pk
+    ON c.object_id = pk.object_id
+   AND c.column_id = pk.column_id
+LEFT JOIN sys.extended_properties ep
+    ON ep.major_id = c.object_id
+   AND ep.minor_id = c.column_id
+   AND ep.name = 'MS_Description'
+
+WHERE
+    t.is_ms_shipped = 0
+    AND rc.row_count >= 1
+    AND EXISTS (
+        SELECT 1
+        FROM sys.columns c2
+        WHERE c2.object_id = t.object_id
+    )
+
+ORDER BY
+    s.name,
+    t.name,
+    c.column_id;

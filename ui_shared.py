@@ -156,3 +156,37 @@ def relationship_context_warning(state: ErdState) -> None:
     elif not get_context_table_set(state, ctx.id):
         st.warning("The active relationship context has no assigned tables. Add tables in the Relationship Contexts tab first.")
 
+
+def tables_df(state: ErdState) -> pd.DataFrame:
+    rows = []
+    for table in sorted(state.tables.values(), key=lambda t: t.full_name.lower()):
+        rows.append(
+            {
+                "schema_name": getattr(table, "schema_name", ""),
+                "table_name": getattr(table, "table_name", ""),
+                "full_name": getattr(table, "full_name", ""),
+                "columns": len(getattr(table, "columns", []) or []),
+                "row_count": getattr(table, "row_count", None),
+                "module": getattr(table, "module", ""),
+                "purpose": getattr(table, "purpose", ""),
+                "notes": getattr(table, "notes", ""),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def columns_df(table: TableInfo) -> pd.DataFrame:
+    rows = []
+    for column in sorted(getattr(table, "columns", []) or [], key=lambda c: getattr(c, "ordinal_position", 0)):
+        rows.append(
+            {
+                "ordinal_position": getattr(column, "ordinal_position", None),
+                "column_name": getattr(column, "column_name", ""),
+                "data_type": getattr(column, "data_type", ""),
+                "nullable": getattr(column, "nullable", ""),
+                "is_primary_key": getattr(column, "is_primary_key", False),
+                "comment": getattr(column, "comment", ""),
+            }
+        )
+    return pd.DataFrame(rows)
+

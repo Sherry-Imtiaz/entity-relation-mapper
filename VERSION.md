@@ -1,11 +1,7 @@
 # Version
 
-Current Version: v2.1.0 Phase 4
+Current Version: v2.2.7 Patch
 
-Version Name: Stabilisation, Cleanup, and Packaging
+Version Name: Export Future Import Order Fix
 
-Status: Current modular project structure
-
-Updated: 2026-05-12
-
-Rollback Checkpoint Before Modularisation: v2.0.5 Patch — Table-Style ERD Components
+Status: ui_export.py future import order repaired and export quality checks preserved.

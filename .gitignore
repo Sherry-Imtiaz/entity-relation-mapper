@@ -24,3 +24,4 @@ Thumbs.db
 exports/
 *.xlsx~
 *.csv~
+erm_error_log.json

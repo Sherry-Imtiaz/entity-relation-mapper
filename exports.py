@@ -285,3 +285,125 @@ def export_json_with_context(state: ErdState, context_id: Optional[str], only_ac
     scoped_state = build_context_scoped_state(state, context_id)
     return export_json(scoped_state, only_active=only_active)
 
+
+# -----------------------------------------------------------------------------
+# v2.1.7 ERD visual simplification overrides
+# -----------------------------------------------------------------------------
+# These functions override earlier export_mermaid/export_dot definitions.
+
+def _erd_is_key_like_column(column_name: str, is_primary_key: bool = False) -> bool:
+    cname = (column_name or "").lower()
+    return (
+        is_primary_key
+        or cname == "id"
+        or cname.endswith("_id")
+        or cname.endswith("id")
+        or "_id_" in cname
+        or cname.endswith("_key")
+        or cname.endswith("key")
+        or "_key_" in cname
+        or cname.endswith("_code")
+        or cname.endswith("code")
+        or "_code_" in cname
+        or cname.endswith("_number")
+        or cname.endswith("number")
+        or "_number_" in cname
+        or cname.endswith("_no")
+        or cname.endswith("no")
+    )
+
+
+def _erd_display_columns(table: TableInfo, max_fields: int = 10) -> List[Any]:
+    columns = sorted(table.columns, key=lambda x: x.ordinal_position)
+    primary_columns = [c for c in columns if getattr(c, "is_primary_key", False)]
+    key_columns = [
+        c for c in columns
+        if c not in primary_columns
+        and _erd_is_key_like_column(getattr(c, "column_name", ""), getattr(c, "is_primary_key", False))
+    ]
+    other_columns = [c for c in columns if c not in primary_columns and c not in key_columns]
+    return (primary_columns + key_columns + other_columns)[:max_fields]
+
+
+def _safe_mermaid_identifier(value: str) -> str:
+    safe = re.sub(r"[^A-Za-z0-9_]", "_", value or "")
+    if not safe:
+        safe = "unknown"
+    if safe[0].isdigit():
+        safe = "_" + safe
+    return safe
+
+
+def _safe_mermaid_type(value: str) -> str:
+    safe = re.sub(r"[^A-Za-z0-9_]", "_", value or "string")
+    return safe or "string"
+
+
+def _safe_dot_label(value: str) -> str:
+    return (value or "").replace("\\", "\\\\").replace('"', r'\"')
+
+
+def export_mermaid(state: ErdState, only_active: bool = True) -> str:
+    lines = ["erDiagram"]
+
+    for table in sorted(state.tables.values(), key=lambda x: x.full_name.lower()):
+        entity_name = _safe_mermaid_identifier(table.full_name)
+        lines.append(f"    {entity_name} {{")
+        for column in _erd_display_columns(table, max_fields=10):
+            data_type = _safe_mermaid_type(getattr(column, "data_type", "") or "string")
+            column_name = _safe_mermaid_identifier(getattr(column, "column_name", ""))
+            pk_marker = " PK" if getattr(column, "is_primary_key", False) else ""
+            lines.append(f"        {data_type} {column_name}{pk_marker}")
+        lines.append("    }")
+
+    rels = [r for r in state.relationships.values() if (r.active or not only_active)]
+    for rel in rels:
+        if rel.source_full_table not in state.tables or rel.target_full_table not in state.tables:
+            continue
+        source_entity = _safe_mermaid_identifier(rel.source_full_table)
+        target_entity = _safe_mermaid_identifier(rel.target_full_table)
+        label = f"{rel.source_column} to {rel.target_column}"
+        if rel.condition_sql:
+            label += " conditional"
+        lines.append(f'    {source_entity} ||--o{{ {target_entity} : "{label}"')
+
+    return chr(10).join(lines)
+
+
+def export_dot(state: ErdState, only_active: bool = True) -> str:
+    lines = [
+        "digraph ERD {",
+        "  graph [rankdir=LR, splines=ortho, nodesep=0.7, ranksep=0.9];",
+        "  node [shape=record, fontsize=10, fontname=\"Arial\"];",
+        "  edge [fontsize=9, fontname=\"Arial\"];",
+    ]
+
+    for table in sorted(state.tables.values(), key=lambda x: x.full_name.lower()):
+        node_id = re.sub(r"[^A-Za-z0-9_]", "_", table.full_name)
+        cols = []
+        for column in _erd_display_columns(table, max_fields=10):
+            col_name = _safe_dot_label(getattr(column, "column_name", ""))
+            prefix = "* " if getattr(column, "is_primary_key", False) else ""
+            if not getattr(column, "is_primary_key", False) and _erd_is_key_like_column(col_name):
+                prefix = "key "
+            cols.append(f"{prefix}{col_name}")
+
+        if not cols:
+            cols.append("_no_columns_loaded_")
+
+        label = "{" + _safe_dot_label(table.full_name) + "|" + "\\l".join(cols) + "\\l}"
+        lines.append(f'  {node_id} [label="{label}"];')
+
+    rels = [r for r in state.relationships.values() if (r.active or not only_active)]
+    for rel in rels:
+        if rel.source_full_table not in state.tables or rel.target_full_table not in state.tables:
+            continue
+        src = re.sub(r"[^A-Za-z0-9_]", "_", rel.source_full_table)
+        tgt = re.sub(r"[^A-Za-z0-9_]", "_", rel.target_full_table)
+        label = _safe_dot_label(f"{rel.source_column} -> {rel.target_column}")
+        if rel.condition_sql:
+            label += " [conditional]"
+        lines.append(f'  {src} -> {tgt} [label="{label}"];')
+
+    lines.append("}")
+    return chr(10).join(lines)
