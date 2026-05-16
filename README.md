@@ -188,3 +188,8 @@ This release rebuilds the Export, ERD, and Logs modules cleanly, fixes the relat
 ## Context-Safe IDs and Duplicate Relationship Handling
 
 Relationships now include context identity in their generated IDs, preventing identical table/column connections in different relationship contexts from overwriting each other. The app warns when a duplicate connection already exists in another context and offers duplicate handling options, including use of a Shared Relationships context.
+
+
+## Conditional Labels and Graphviz Image Downloads
+
+Graphviz and Mermaid ERD outputs now include conditional relationship text on relationship labels. ERD View provides downloads for DOT, SVG, PNG, and Mermaid. SVG/PNG rendering requires the Graphviz renderer to be installed on the machine running Streamlit.

@@ -1,7 +1,7 @@
 # Version
 
-Current Version: v2.2.14 Patch
+Current Version: v2.2.15 Patch
 
-Version Name: Context-Safe IDs and Duplicate Relationship Handling
+Version Name: Conditional Labels and Graphviz Image Downloads
 
-Status: Relationship IDs are context-safe and duplicate connections are detected before saving.
+Status: Conditional labels added to ERD outputs and Graphviz image downloads added.

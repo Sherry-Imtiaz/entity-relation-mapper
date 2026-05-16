@@ -2,9 +2,21 @@ from pathlib import Path
 
 STATE_FILE = Path("erd_mapper_state.json")
 
-APP_VERSION = "v2.2.14"
-APP_VERSION_NAME = "Context-Safe IDs and Duplicate Relationship Handling"
+APP_VERSION = "v2.2.15"
+APP_VERSION_NAME = "Conditional Labels and Graphviz Image Downloads"
 APP_CHANGELOG = [
+    {
+        "version": "v2.2.15 Patch",
+        "title": "Conditional Labels and Graphviz Image Downloads",
+        "changes": [
+            "Added conditional relationship text to Graphviz ERD edge labels.",
+            "Added conditional relationship text to Mermaid ERD edge labels.",
+            "Added erd_rendering.py for Graphviz SVG/PNG rendering support.",
+            "Added DOT, SVG, PNG, and Mermaid download options in ERD View.",
+            "Preserved relationship context dropdown behaviour for ERD View.",
+            "Added helpful renderer warning when Graphviz image rendering is unavailable."
+        ],
+    },
     {
         "version": "v2.2.14 Patch",
         "title": "Context-Safe IDs and Duplicate Relationship Handling",

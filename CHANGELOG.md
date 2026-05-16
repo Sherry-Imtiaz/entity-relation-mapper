@@ -1,5 +1,24 @@
 # Entity Relation Mapper — Changelog
 
+## v2.2.15 Patch — Conditional Labels and Graphviz Image Downloads
+
+### Added
+- Conditional relationship text on Graphviz ERD labels.
+- Conditional relationship text on Mermaid ERD labels.
+- Graphviz DOT download.
+- Graphviz SVG download.
+- Graphviz PNG download.
+- Mermaid ERD download.
+- `erd_rendering.py` helper module.
+
+### Preserved
+- Relationship Context dropdown workflow.
+- Context-specific ERD display.
+- Whole database ERD display.
+- Existing export behaviour.
+
+---
+
 ## v2.2.14 Patch — Context-Safe IDs and Duplicate Relationship Handling
 
 ### Added
