@@ -1,7 +1,7 @@
 # Version
 
-Current Version: v2.2.15 Patch
+Current Version: v2.2.18 Patch
 
-Version Name: Conditional Labels and Graphviz Image Downloads
+Version Name: Manage Relationship Preview String Fix
 
-Status: Conditional labels added to ERD outputs and Graphviz image downloads added.
+Status: ui_relationships.py f-string preview syntax fixed.

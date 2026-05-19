@@ -252,8 +252,7 @@ def render_relationship_registry(state: ErdState) -> None:
     target_table = getattr(rel, "target_table", "")
 
     current_type = (getattr(rel, "relationship_type", "") or "manual").lower()
-    has_condition = bool((getattr(rel, "condition_sql", "") or "").strip())
-    current_mode = "Conditional relationship" if current_type == "conditional" or has_condition else "Standard relationship"
+    current_mode = "Conditional relationship" if current_type == "conditional" or (getattr(rel, "condition_sql", "") or "").strip() else "Standard relationship"
 
     mode_col, cardinality_col = st.columns(2)
 
@@ -371,10 +370,7 @@ def render_relationship_registry(state: ErdState) -> None:
     duplicate_update_action = "Save update"
 
     if duplicate_matches:
-        try:
-            duplicate_contexts = duplicate_context_names(state, duplicate_matches)
-        except Exception:
-            duplicate_contexts = ["another context"]
+        duplicate_contexts = duplicate_context_names(state, duplicate_matches)
         st.warning(
             "This updated relationship matches an existing connection in: "
             + ", ".join(duplicate_contexts)
@@ -387,18 +383,22 @@ def render_relationship_registry(state: ErdState) -> None:
         )
 
     with st.expander("Updated relationship preview", expanded=False):
-        preview_lines = [
-            f"{source_full}.{rel.source_column} -> {target_full}.{rel.target_column}",
-            f"Mode: {new_mode}",
-            f"Cardinality: {new_cardinality}",
-            f"Join type: {new_join_type}",
-            f"Active: {new_active}",
-        ]
+        preview = f"{source_full}.{rel.source_column} -> {target_full}.{rel.target_column}"
+        preview += f"
+Mode: {new_mode}"
+        preview += f"
+Cardinality: {new_cardinality}"
+        preview += f"
+Join type: {new_join_type}"
+        preview += f"
+Active: {new_active}"
         if new_condition_sql.strip():
-            preview_lines.append(f"Condition: {new_condition_sql}")
+            preview += f"
+Condition: {new_condition_sql}"
         if new_extra_join_sql.strip():
-            preview_lines.append(f"Extra join: {new_extra_join_sql}")
-        st.code(chr(10).join(preview_lines), language="text")
+            preview += f"
+Extra join: {new_extra_join_sql}"
+        st.code(preview, language="text")
 
     action_col1, action_col2 = st.columns(2)
 

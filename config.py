@@ -2,9 +2,45 @@ from pathlib import Path
 
 STATE_FILE = Path("erd_mapper_state.json")
 
-APP_VERSION = "v2.2.15"
-APP_VERSION_NAME = "Conditional Labels and Graphviz Image Downloads"
+APP_VERSION = "v2.2.18"
+APP_VERSION_NAME = "Manage Relationship Preview String Fix"
 APP_CHANGELOG = [
+    {
+        "version": "v2.2.18 Patch",
+        "title": "Manage Relationship Preview String Fix",
+        "changes": [
+            "Fixed unterminated f-string error in ui_relationships.py.",
+            "Replaced relationship update preview string concatenation with safe chr(10).join preview lines.",
+            "Preserved Manage Relationship conditional editing from v2.2.17.",
+            "Preserved context-safe relationship ID regeneration and duplicate checks."
+        ],
+    },
+    {
+        "version": "v2.2.17 Patch",
+        "title": "Manage Relationship Conditional Editing",
+        "changes": [
+            "Added relationship mode editing in Manage relationship.",
+            "Added cardinality editing in Manage relationship.",
+            "Added Condition SQL editing for conditional relationships.",
+            "Added Extra Join SQL editing for managed relationships.",
+            "Regenerates context-safe relationship IDs when relationship type or condition changes.",
+            "Adds duplicate detection when edited relationships match existing connections.",
+            "Preserves existing active, confidence, join type, description, and delete workflows."
+        ],
+    },
+    {
+        "version": "v2.2.16 Patch",
+        "title": "Multi-Context ERD and Export Selection",
+        "changes": [
+            "Added Whole database vs Selected relationship contexts selection mode for ERD View.",
+            "Added Whole database vs Selected relationship contexts selection mode for Export for ChatGPT.",
+            "Added multi-select relationship context picker for ERD View.",
+            "Added multi-select relationship context picker for Export for ChatGPT.",
+            "Updated quality_checks.py to support multiple selected context IDs.",
+            "Export now attaches context name to each relationship in Markdown and JSON outputs.",
+            "Preserved Graphviz DOT/SVG/PNG and Mermaid downloads."
+        ],
+    },
     {
         "version": "v2.2.15 Patch",
         "title": "Conditional Labels and Graphviz Image Downloads",

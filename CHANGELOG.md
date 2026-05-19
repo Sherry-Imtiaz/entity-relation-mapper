@@ -1,5 +1,62 @@
 # Entity Relation Mapper — Changelog
 
+## v2.2.18 Patch — Manage Relationship Preview String Fix
+
+### Fixed
+- Fixed `SyntaxError: unterminated f-string literal` in `ui_relationships.py`.
+- Replaced fragile newline f-string preview concatenation with `chr(10).join(...)`.
+
+### Preserved
+- Manage relationship conditional editing.
+- Condition SQL editing.
+- Extra Join SQL editing.
+- Cardinality editing.
+- Context-safe relationship ID regeneration.
+- Duplicate detection on update.
+
+---
+
+## v2.2.17 Patch — Manage Relationship Conditional Editing
+
+### Added
+- Edit relationship mode from Manage relationship.
+- Edit cardinality.
+- Edit Condition SQL.
+- Edit Extra Join SQL.
+- Duplicate detection when edited relationship settings match another connection.
+- Context-safe relationship ID regeneration when relationship type or condition changes.
+
+### Fixed
+- Existing relationships no longer need to be deleted/recreated just to change conditional logic.
+
+### Preserved
+- Active status editing.
+- Join type editing.
+- Confidence editing.
+- Description editing.
+- Delete relationship action.
+
+---
+
+## v2.2.16 Patch — Multi-Context ERD and Export Selection
+
+### Added
+- Whole database vs selected-context mode for ERD View.
+- Whole database vs selected-context mode for Export for ChatGPT.
+- Multi-select relationship context picker for ERD View.
+- Multi-select relationship context picker for Export for ChatGPT.
+- Multi-context quality checks.
+- Context name attached to each relationship in Markdown and JSON exports.
+
+### Preserved
+- Conditional labels in Graphviz and Mermaid.
+- Graphviz DOT/SVG/PNG downloads.
+- Mermaid download.
+- Active relationship filtering.
+- Connected-table filtering.
+
+---
+
 ## v2.2.15 Patch — Conditional Labels and Graphviz Image Downloads
 
 ### Added

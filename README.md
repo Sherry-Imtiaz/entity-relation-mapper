@@ -193,3 +193,18 @@ Relationships now include context identity in their generated IDs, preventing id
 ## Conditional Labels and Graphviz Image Downloads
 
 Graphviz and Mermaid ERD outputs now include conditional relationship text on relationship labels. ERD View provides downloads for DOT, SVG, PNG, and Mermaid. SVG/PNG rendering requires the Graphviz renderer to be installed on the machine running Streamlit.
+
+
+## Multi-Context ERD and Export Selection
+
+ERD View and Export for ChatGPT now support two modes: Whole database or Selected relationship contexts. In selected-context mode, choose multiple relationship contexts to visualise or export only those relationships and their connected tables.
+
+
+## Manage Relationship Conditional Editing
+
+Manage relationship now supports editing relationship mode, cardinality, Condition SQL, Extra Join SQL, active status, join type, confidence, and description. When conditional settings change, the relationship ID is regenerated using the context-safe ID format.
+
+
+## Manage Relationship Preview String Fix
+
+Fixed an unterminated f-string error in `ui_relationships.py` by rebuilding the Manage relationship preview using safe preview lines and `chr(10).join(...)`.
