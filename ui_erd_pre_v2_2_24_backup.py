@@ -1,11 +1,11 @@
 
 from __future__ import annotations
 
-import base64
 import copy
 from typing import Dict, List, Optional
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from erd_rendering import build_dependency_free_erd_viewer
 from exports import export_dot, export_mermaid
@@ -183,11 +183,7 @@ def _render_dependency_free_viewer(display_state: ErdState) -> None:
         edge_style=edge_style,
         spacing_mode=spacing_mode,
     )
-    html_b64 = base64.b64encode(html.encode("utf-8")).decode("ascii")
-    st.iframe(
-        f"data:text/html;base64,{html_b64}",
-        height=viewer_height,
-    )
+    components.html(html, height=viewer_height, scrolling=False)
 
 
 def render_erd_tab(state: ErdState) -> None:

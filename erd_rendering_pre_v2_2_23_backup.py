@@ -43,13 +43,10 @@ def _table_full_name(table_key: str, table) -> str:
 
 def _important_columns(table, relationships, table_full: str, max_columns: int = 10):
     rel_cols = set()
-
     for rel in relationships:
         source_full, target_full = _relationship_tables(rel)
-
         if source_full == table_full:
             rel_cols.add(getattr(rel, "source_column", ""))
-
         if target_full == table_full:
             rel_cols.add(getattr(rel, "target_column", ""))
 
@@ -69,12 +66,7 @@ def _important_columns(table, relationships, table_full: str, max_columns: int =
             or lower.endswith("_number")
             or lower.endswith("number")
         )
-        return (
-            not is_pk,
-            not is_rel,
-            not is_id_like,
-            getattr(col, "ordinal_position", 999999),
-        )
+        return (not is_pk, not is_rel, not is_id_like, getattr(col, "ordinal_position", 999999))
 
     columns = sorted(columns, key=priority)
     return columns[:max_columns], len(columns) > max_columns
@@ -109,17 +101,14 @@ def _layout_tables_by_relationship_flow(tables, relationships, spacing_mode: str
             incoming[tar].add(src)
 
     level = {name: 0 for name in table_names}
-
     for _ in range(max(1, len(table_names)) * 2):
         changed = False
-
         for src in table_names:
             for tar in outgoing[src]:
                 proposed = level[src] + 1
                 if proposed > level[tar]:
                     level[tar] = proposed
                     changed = True
-
         if not changed:
             break
 
@@ -128,12 +117,10 @@ def _layout_tables_by_relationship_flow(tables, relationships, spacing_mode: str
             table_names,
             key=lambda n: (-(len(incoming[n]) + len(outgoing[n])), n.lower()),
         )
-
         for idx, name in enumerate(ordered):
             level[name] = idx % 3
 
     levels: Dict[int, List[str]] = {}
-
     for name in table_names:
         levels.setdefault(level[name], []).append(name)
 
@@ -148,12 +135,7 @@ def _layout_tables_by_relationship_flow(tables, relationships, spacing_mode: str
 
         for row, table_full in enumerate(names):
             table_key, table = table_lookup[table_full]
-            selected_cols, truncated = _important_columns(
-                table,
-                relationships,
-                table_full,
-                max_columns=10,
-            )
+            selected_cols, truncated = _important_columns(table, relationships, table_full, max_columns=10)
             node_height = node_height_base + (len(selected_cols) + (1 if truncated else 0)) * 22
             y = 60 + row * (node_height + spacing["y_gap"] + 80)
 
@@ -205,10 +187,7 @@ def _edge_path(source_pos, target_pos, edge_index: int, edge_style: str = "Ortho
     mid_y = (y1 + y2) / 2
 
     if edge_style == "Curved":
-        path = (
-            f"M {x1:.1f} {y1:.1f} "
-            f"C {mid_x:.1f} {y1:.1f}, {mid_x:.1f} {y2:.1f}, {x2:.1f} {y2:.1f}"
-        )
+        path = f"M {x1:.1f} {y1:.1f} C {mid_x:.1f} {y1:.1f}, {mid_x:.1f} {y2:.1f}, {x2:.1f} {y2:.1f}"
     else:
         if abs(x2 - x1) < 30:
             side_x = max(sx + sw, tx + tw) + 90 + abs(offset)
@@ -270,26 +249,17 @@ def build_dependency_free_erd_viewer(
     relationships = list(getattr(state, "relationships", {}).values())
     tables = list(getattr(state, "tables", {}).items())
 
-    positions = _layout_tables_by_relationship_flow(
-        tables,
-        relationships,
-        spacing_mode=spacing_mode,
-    )
+    positions = _layout_tables_by_relationship_flow(tables, relationships, spacing_mode=spacing_mode)
 
     table_cards = []
-
     for table_full, pos in positions.items():
         selected_cols = pos["selected_cols"]
         col_html = []
-
         for col in selected_cols:
             cname = escape(getattr(col, "column_name", ""))
             dtype = escape(getattr(col, "data_type", ""))
             pk = " <span class='pk'>PK</span>" if bool(getattr(col, "is_primary_key", False)) else ""
-            col_html.append(
-                f"<div class='col'><span>{cname}</span><small>{dtype}{pk}</small></div>"
-            )
-
+            col_html.append(f"<div class='col'><span>{cname}</span><small>{dtype}{pk}</small></div>")
         if pos["truncated"]:
             col_html.append("<div class='col muted'>… more columns</div>")
 
@@ -308,7 +278,6 @@ def build_dependency_free_erd_viewer(
 
     for idx, rel in enumerate(relationships):
         source_full, target_full = _relationship_tables(rel)
-
         if source_full not in positions or target_full not in positions:
             continue
 
@@ -324,12 +293,7 @@ def build_dependency_free_erd_viewer(
             f"<path class='{css_class}' d='{path}' marker-end='url(#arrow)' />"
         )
 
-        label = _relationship_label(
-            rel,
-            show_relationship_labels=show_relationship_labels,
-            show_condition_labels=show_condition_labels,
-        )
-
+        label = _relationship_label(rel, show_relationship_labels, show_condition_labels)
         if label:
             edge_labels.append(
                 f"<div class='edge-label' style='left:{mid_x - 115}px; top:{mid_y - 18}px;'>{escape(label)}</div>"
@@ -338,9 +302,6 @@ def build_dependency_free_erd_viewer(
     max_x = max([p["x"] + p["w"] for p in positions.values()] + [1000]) + 280
     max_y = max([p["y"] + p["h"] for p in positions.values()] + [700]) + 260
 
-    # IMPORTANT:
-    # This is an f-string. All literal CSS/JS braces must be doubled: {{ and }}.
-    # Single braces are only used for Python values such as {height}, {max_x}, and injected HTML strings.
     return f"""
 <!DOCTYPE html>
 <html>
@@ -394,13 +355,12 @@ def build_dependency_free_erd_viewer(
   }}
   #canvas {{
     position: relative;
-    background: #ffffff;
     width: {max_x}px;
     height: {max_y}px;
     transform-origin: 0 0;
     will-change: transform;
   }}
-  .diagram-surface {{
+  .diagram-surface {
     position: absolute;
     left: 0;
     top: 0;
@@ -408,7 +368,7 @@ def build_dependency_free_erd_viewer(
     height: 100%;
     background: #ffffff;
     z-index: 0;
-  }}
+  }
   .edge-layer {{
     position: absolute;
     left: 0;

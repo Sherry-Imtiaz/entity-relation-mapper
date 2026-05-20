@@ -1,5 +1,126 @@
 # Entity Relation Mapper — Changelog
 
+## v2.2.24 Patch — Replace Deprecated Components HTML Viewer
+
+### Fixed
+- Replaced deprecated `st.components.v1.html` usage.
+- Removed the Streamlit warning about `st.components.v1.html` being removed after 2026-06-01.
+
+### Changed
+- Dependency-free ERD viewer HTML is now loaded through `st.iframe()` using a base64 `data:text/html` URL.
+
+### Preserved
+- Dependency-free ERD viewer.
+- White background.
+- Zoom and pan.
+- Reset and fit controls.
+- Relationship-flow layout.
+- Orthogonal / curved edge options.
+- Relationship labels and condition labels.
+- DOT and Mermaid downloads.
+
+---
+
+## v2.2.23 Patch — ERD Viewer CSS Brace Runtime Fix
+
+### Fixed
+- Fixed runtime error in `erd_rendering.py` caused by unescaped CSS braces inside the HTML f-string.
+- Rebuilt the dependency-free ERD viewer template with correctly escaped CSS and JavaScript braces.
+
+### Preserved
+- Clean white background.
+- Dependency-free ERD viewer.
+- Zoom and pan.
+- Reset and fit controls.
+- Relationship-flow layout.
+- Orthogonal / curved edge options.
+- Relationship labels and condition labels.
+- DOT and Mermaid downloads.
+
+---
+
+## v2.2.22 Patch — Dependency-Free ERD White Background Fix
+
+### Fixed
+- Restored the white background in the dependency-free ERD viewer.
+- Removed the grey/checker/grid background from the ERD viewport.
+- Added a consistent white canvas behind the diagram.
+
+### Preserved
+- Dependency-free rendering.
+- Relationship-flow layout.
+- Orthogonal / curved edge styling.
+- Conditional relationship highlighting.
+- Zoom and pan.
+- Reset and fit controls.
+- DOT and Mermaid downloads.
+
+---
+
+## v2.2.21 Patch — Dependency-Free ERD Routing and Visibility Fix
+
+### Improved
+- Dependency-free ERD table layout.
+- Relationship line visibility.
+- Arrowhead visibility.
+- Conditional relationship highlighting.
+- Label readability.
+- Canvas padding to avoid clipping.
+
+### Added
+- Show relationship labels toggle.
+- Show condition labels toggle.
+- Edge style selector: Orthogonal / Curved.
+- Table spacing selector: Compact / Comfortable / Wide.
+
+### Preserved
+- Dependency-free rendering.
+- Zoom and pan.
+- DOT download.
+- Mermaid download.
+- Static Streamlit Graphviz display mode.
+
+---
+
+## v2.2.20 Patch — Dependency-Free ERD Viewer Fallback
+
+### Added
+- Dependency-free interactive ERD viewer.
+- Zoom in / zoom out, mouse-wheel zoom, click-and-drag pan, reset view, and fit to screen.
+
+### Changed
+- ERD View no longer depends on the Graphviz `dot` executable for its default interactive view.
+- SVG/PNG server-side image downloads are disabled by default and documented as optional Graphviz-system features.
+
+### Preserved
+- Static Streamlit Graphviz display mode.
+- DOT download.
+- Mermaid download.
+- Multi-context ERD selection.
+- Conditional labels in dependency-free viewer labels.
+
+---
+
+## v2.2.19 Patch — Interactive Graphviz ERD Viewer
+
+### Added
+- Interactive Graphviz SVG viewer.
+- Zoom in and zoom out controls.
+- Mouse-wheel zoom.
+- Click-and-drag pan.
+- Reset view.
+- Fit to screen.
+- Display mode selector for Interactive viewer or Static Streamlit Graphviz.
+
+### Preserved
+- Multi-context ERD selection.
+- Whole database ERD mode.
+- Conditional labels.
+- DOT, SVG, PNG, and Mermaid downloads.
+- Static Graphviz fallback.
+
+---
+
 ## v2.2.18 Patch — Manage Relationship Preview String Fix
 
 ### Fixed

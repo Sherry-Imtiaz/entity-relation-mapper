@@ -2,9 +2,77 @@ from pathlib import Path
 
 STATE_FILE = Path("erd_mapper_state.json")
 
-APP_VERSION = "v2.2.18"
-APP_VERSION_NAME = "Manage Relationship Preview String Fix"
+APP_VERSION = "v2.2.24"
+APP_VERSION_NAME = "Replace Deprecated Components HTML Viewer"
 APP_CHANGELOG = [
+    {
+        "version": "v2.2.24 Patch",
+        "title": "Replace Deprecated Components HTML Viewer",
+        "changes": [
+            "Replaced deprecated st.components.v1.html usage in ERD View.",
+            "Added base64 data URL rendering through st.iframe for the dependency-free ERD viewer.",
+            "Removed streamlit.components.v1 import from ui_erd.py where present.",
+            "Preserved dependency-free ERD viewer behaviour including zoom, pan, reset, fit, routing controls, and white background.",
+            "Preserved DOT and Mermaid downloads."
+        ],
+    },
+    {
+        "version": "v2.2.23 Patch",
+        "title": "ERD Viewer CSS Brace Runtime Fix",
+        "changes": [
+            "Fixed dependency-free ERD viewer runtime error caused by unescaped CSS braces inside an f-string.",
+            "Rebuilt erd_rendering.py with safely escaped CSS and JavaScript braces.",
+            "Preserved the clean white viewer background.",
+            "Preserved dependency-free ERD rendering, improved routing, zoom, pan, reset, fit, labels, and DOT/Mermaid downloads."
+        ],
+    },
+    {
+        "version": "v2.2.22 Patch",
+        "title": "Dependency-Free ERD White Background Fix",
+        "changes": [
+            "Restored a clean white background in the dependency-free ERD viewer.",
+            "Removed the grey/checker/grid background from the ERD viewport.",
+            "Added a white canvas/background layer behind the diagram.",
+            "Preserved improved relationship-flow layout, orthogonal routing, labels, zoom, pan, reset, and fit controls.",
+            "Preserved DOT and Mermaid downloads."
+        ],
+    },
+    {
+        "version": "v2.2.21 Patch",
+        "title": "Dependency-Free ERD Routing and Visibility Fix",
+        "changes": [
+            "Improved dependency-free ERD layout using relationship-flow table levels.",
+            "Added orthogonal edge routing for clearer relationship lines.",
+            "Increased edge contrast, thickness, and arrowhead visibility.",
+            "Improved relationship label readability and positioning.",
+            "Added ERD controls for relationship labels, condition labels, edge style, and table spacing.",
+            "Added larger canvas padding to reduce clipping around arrows and labels."
+        ],
+    },
+    {
+        "version": "v2.2.20 Patch",
+        "title": "Dependency-Free ERD Viewer Fallback",
+        "changes": [
+            "Added a dependency-free HTML/SVG ERD viewer that does not require the Graphviz dot executable.",
+            "Removed server-side Graphviz SVG/PNG rendering from the default ERD path.",
+            "Kept zoom, pan, reset, and fit behaviour in the dependency-free viewer.",
+            "Kept Static Streamlit Graphviz as an optional display mode.",
+            "Kept DOT and Mermaid downloads.",
+            "Added guidance explaining why SVG/PNG image export needs the Graphviz system package."
+        ],
+    },
+    {
+        "version": "v2.2.19 Patch",
+        "title": "Interactive Graphviz ERD Viewer",
+        "changes": [
+            "Added an interactive Graphviz SVG viewer to ERD View.",
+            "Added zoom in, zoom out, mouse-wheel zoom, pan, reset, and fit controls.",
+            "Added ERD display mode selection between Interactive viewer and Static Streamlit Graphviz.",
+            "Kept DOT, SVG, PNG, and Mermaid downloads.",
+            "Kept multi-context ERD selection and whole database mode.",
+            "Falls back to static Graphviz when SVG rendering is unavailable."
+        ],
+    },
     {
         "version": "v2.2.18 Patch",
         "title": "Manage Relationship Preview String Fix",
