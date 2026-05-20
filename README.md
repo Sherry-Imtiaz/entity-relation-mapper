@@ -208,3 +208,33 @@ Manage relationship now supports editing relationship mode, cardinality, Conditi
 ## Manage Relationship Preview String Fix
 
 Fixed an unterminated f-string error in `ui_relationships.py` by rebuilding the Manage relationship preview using safe preview lines and `chr(10).join(...)`.
+
+
+## Interactive Graphviz ERD Viewer
+
+ERD View now includes an interactive SVG viewer for Graphviz diagrams. The viewer supports zoom in, zoom out, mouse-wheel zoom, click-and-drag pan, reset, and fit-to-screen. Static Streamlit Graphviz remains available as a display mode and fallback.
+
+
+## Dependency-Free ERD Viewer Fallback
+
+ERD View includes a dependency-free interactive HTML/SVG viewer that supports zoom and pan without requiring the Graphviz system executable. Static Streamlit Graphviz remains available, and DOT/Mermaid downloads remain available. SVG/PNG server-side image export requires optional Graphviz system installation.
+
+
+## Dependency-Free ERD Routing and Visibility Fix
+
+The dependency-free ERD viewer now uses relationship-flow layout, clearer orthogonal edges, stronger line styling, improved labels, conditional relationship highlighting, and display controls for labels, condition labels, edge style, and table spacing.
+
+
+## Dependency-Free ERD White Background Fix
+
+The dependency-free ERD viewer now uses a clean white viewport and canvas background. This removes the grey/checker/grid background while preserving zoom, pan, relationship-flow layout, clearer routing, labels, and DOT/Mermaid downloads.
+
+
+## ERD Viewer CSS Brace Runtime Fix
+
+Fixed a runtime error in the dependency-free ERD viewer caused by CSS braces being interpreted as Python f-string expressions. The viewer template has been rebuilt with safely escaped CSS and JavaScript braces while preserving the clean white background, routing, labels, zoom and pan controls, and DOT/Mermaid downloads.
+
+
+## Replace Deprecated Components HTML Viewer
+
+The dependency-free ERD viewer now renders through `st.iframe()` using a base64 HTML data URL instead of deprecated `st.components.v1.html`. This removes the Streamlit deprecation warning while preserving zoom, pan, routing, labels, white background, and DOT/Mermaid downloads.

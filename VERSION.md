@@ -1,7 +1,7 @@
 # Version
 
-Current Version: v2.2.18 Patch
+Current Version: v2.2.24 Patch
 
-Version Name: Manage Relationship Preview String Fix
+Version Name: Replace Deprecated Components HTML Viewer
 
-Status: ui_relationships.py f-string preview syntax fixed.
+Status: ERD dependency-free viewer now uses st.iframe instead of deprecated st.components.v1.html.
